@@ -1,0 +1,19 @@
+<div class="clearfix">
+	$r.render("review")
+</div>
+<div class="row">
+	#if($metadataSwitch)
+		<div class="col-md-8">
+			$r.render("type_specifics")
+			$r.render("comments")
+		</div>
+		<div class="col-md-4">
+			$r.render("metadatas")
+		</div>
+	#else
+	<div class="col-md-12">
+		$r.render("type_specifics")
+		$r.render("comments")
+	</div>
+	#end
+</div>

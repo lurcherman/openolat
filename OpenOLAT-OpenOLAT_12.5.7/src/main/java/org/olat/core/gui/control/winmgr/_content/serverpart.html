@@ -1,0 +1,128 @@
+## Set height to 0 to fix IE rendering issue (div would consume some visible space)
+<div style="height:0px">
+<script type="text/javascript">
+/* <![CDATA[ */ 
+var stopped = true;
+function initPolling () {
+	o_info.lastClickTime = new Date().getTime();
+	pollgrowth = 0;
+	pollcount  = 0;
+	if (stopped) {
+		stopped = false;
+		tick();
+	}
+}
+
+##observe mouse/keyboard activity to resume polling
+jQuery("#o_body").bind("mouseover click keypress", function(event){initPolling();});
+
+o_info.mainwinref = this.window;
+o_info.wins = {};
+o_info.poller = null;
+
+var growthrate = 10;
+var pollminutes = 60;
+var pollcount = 0;
+var pollError = 0;
+var pollgrowth = 0;
+var timestampLastPoll = new Date().getTime();
+
+// set timestamp cookie to inform other windows that they are outdated
+var sbtimestamp = new Date().getTime();
+var sbcookie = 'OLAT-UI-TIMESTAMP';
+if (window.opener == null) document.cookie = sbcookie+'='+sbtimestamp+'; path=/; SameSite=strict';
+
+## starts an interval which checks every second whether to send an poll request based on
+## the pollperiod or not 10 min after the last click the poll process stops
+
+function tick () {
+	o_info.poller = jQuery.periodic({period: $pollperiod, decay:1.005, max_period: Number.MAX_VALUE}, function() {
+		if ( !o_info.linkbusy && (this.period > 1000) && (pollError < 2) ) {
+			try {
+				var now = new Date().getTime();
+				if ((now - o_info.lastClickTime) < (pollminutes*60*1000)) {
+					if ((now - timestampLastPoll) > (this.period + pollgrowth)) {
+						timestampLastPoll = now;
+						pollcount++;
+						pollgrowth = Math.ceil((this.period+pollgrowth)*(100+growthrate)/100) - this.period;
+						o_info.ajaxpp = jQuery.ajax({
+							method:'POST',
+							url:'$mapuri/',
+							cache: false,
+							success:onPollSuccess,
+							error:onPollFailure
+						});
+
+					}
+				} else {
+					stopped = true;
+				}
+			} catch (e) {
+				o_info.poller.cancel(); //stop on errors
+			}
+		}
+
+		// if window is not a popup window, become a standby window 
+		// in case the cookie timestamp is newer than the own one set while loading
+		// because another window holds the current UI which works
+		if (window.opener == null) {
+			var p = sbcookie + "=";
+			var ca = document.cookie.split(';');
+			for(var i=0;i < ca.length;i++) {
+				var c = ca[i];
+				while (c.charAt(0)==' ') c = c.substring(1,c.length);
+				if (c.indexOf(p) == 0) {
+					try {
+						var ts = Math.floor(c.substring(p.length,c.length));
+						if (ts > sbtimestamp) {
+							window.onunload=null;
+							window.onbeforeunload=null;
+							window.location='$sburi/';
+						}
+					} catch (e) {
+						// does not matter
+					};
+				}
+			}
+		}
+	});
+}
+
+jQuery(document).ready(initPolling);
+
+#if ($isAdmin)
+##check whether polling started or not. Wrap it makes it more stable
+jQuery(function() { 
+	setTimeout( function(){ if (!o_info.ajaxpp) {
+			showMessageBox('error', 'error', 'Some core functionality could not be started. Please log out of OLAT and login again.');
+		}},60000);
+	}
+);
+#end
+
+function onPollSuccess(content, s, response) {
+	if(response.status == 304) {
+	 	pollError = 0;
+	} else if(response.status >= 200 && response.status < 300) {
+	 	pollError = 0;
+	 	o_onc(response);
+	} else {
+	 	pollError++;
+	}
+}
+
+function onPollFailure() {
+  pollError++;
+}
+/* ]]> */
+</script>
+$r.render("pollperiodPanel")
+## for safari: we cannot use display:none which would be the obvious choice here
+<div id="oaawrp" style="visibility:hidden;width:0px;height:0px">
+## don't use the document.write approach, triggers an 'page contains insecure elements' warning (OLAT-4548). Load empty.html instead
+<iframe src='$r.staticLink("empty.html")' name="oaa0" id="oaa0" width="1" height="1" onload="clearAfterAjaxIframeCall()"></iframe>
+## try javascript:void(0)
+</div>
+## below we need to provide an action attribute to make it html 4.01 transitional
+	<form id="o_oaap" method="post" action="#" onsubmit="return false" target="oaa0"><input type="hidden" name="v"></form>
+</div>

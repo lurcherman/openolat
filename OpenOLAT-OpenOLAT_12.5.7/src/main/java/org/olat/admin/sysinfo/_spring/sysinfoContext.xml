@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+  http://www.springframework.org/schema/beans 
+  http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/context 
+  http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<bean id="org.olat.admin.sysinfo.InfoMessageManager" 
+		class="org.olat.admin.sysinfo.InfoMessageManager">
+		<constructor-arg index="0"  ref="coordinatorManager"/>
+		<constructor-arg index="1" value="${node.id}" />
+		<property name="actionController">
+		<!-- there are two versions of the infoMessageController (singleVM or Cluster versions). Dynamic creation based on the value in olat.properties-->	
+			<bean class="org.olat.core.gui.control.creator.AutoCreator" scope="prototype">
+				<property name="className" value="org.olat.admin.sysinfo.InfoMessageController${cluster.mode}"/>
+			</bean>
+		</property>
+	</bean>
+
+
+</beans>

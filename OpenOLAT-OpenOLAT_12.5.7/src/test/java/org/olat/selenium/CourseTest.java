@@ -1,0 +1,1566 @@
+/**
+ * <a href="http://www.openolat.org">
+ * OpenOLAT - Online Learning and Training</a><br>
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License"); <br>
+ * you may not use this file except in compliance with the License.<br>
+ * You may obtain a copy of the License at the
+ * <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache homepage</a>
+ * <p>
+ * Unless required by applicable law or agreed to in writing,<br>
+ * software distributed under the License is distributed on an "AS IS" BASIS, <br>
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. <br>
+ * See the License for the specific language governing permissions and <br>
+ * limitations under the License.
+ * <p>
+ * Initial code contributed and copyrighted by<br>
+ * frentix GmbH, http://www.frentix.com
+ * <p>
+ */
+package org.olat.selenium;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
+
+import org.jboss.arquillian.container.test.api.RunAsClient;
+import org.jboss.arquillian.drone.api.annotation.Drone;
+import org.jboss.arquillian.graphene.page.InitialPage;
+import org.jboss.arquillian.graphene.page.Page;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.test.api.ArquillianResource;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.olat.commons.calendar.model.KalendarEvent;
+import org.olat.selenium.page.Administrator;
+import org.olat.selenium.page.Author;
+import org.olat.selenium.page.LoginPage;
+import org.olat.selenium.page.NavigationPage;
+import org.olat.selenium.page.Participant;
+import org.olat.selenium.page.Student;
+import org.olat.selenium.page.User;
+import org.olat.selenium.page.core.AdministrationPage;
+import org.olat.selenium.page.core.BookingPage;
+import org.olat.selenium.page.core.CalendarPage;
+import org.olat.selenium.page.core.MenuTreePageFragment;
+import org.olat.selenium.page.course.AssessmentCEConfigurationPage;
+import org.olat.selenium.page.course.AssessmentToolPage;
+import org.olat.selenium.page.course.CourseEditorPageFragment;
+import org.olat.selenium.page.course.CoursePageFragment;
+import org.olat.selenium.page.course.CourseWizardPage;
+import org.olat.selenium.page.course.MembersPage;
+import org.olat.selenium.page.course.PublisherPageFragment;
+import org.olat.selenium.page.course.RemindersPage;
+import org.olat.selenium.page.graphene.OOGraphene;
+import org.olat.selenium.page.repository.AuthoringEnvPage;
+import org.olat.selenium.page.repository.AuthoringEnvPage.ResourceType;
+import org.olat.selenium.page.repository.CPPage;
+import org.olat.selenium.page.repository.RepositoryAccessPage;
+import org.olat.selenium.page.repository.RepositoryAccessPage.UserAccess;
+import org.olat.selenium.page.user.UserToolsPage;
+import org.olat.selenium.page.repository.RepositoryEditDescriptionPage;
+import org.olat.test.JunitTestHelper;
+import org.olat.test.rest.UserRestClient;
+import org.olat.user.restapi.UserVO;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+/**
+ * 
+ * Initial date: 20.06.2014<br>
+ * @author srosse, stephane.rosse@frentix.com, http://www.frentix.com
+ *
+ */
+@RunWith(Arquillian.class)
+public class CourseTest extends Deployments {
+
+	@Drone
+	private WebDriver browser;
+	@ArquillianResource
+	private URL deploymentUrl;
+	@Page
+	private NavigationPage navBar;
+	
+	/**
+	 * An author create a course, jump to it, open the editor
+	 * add an info messages course element, publish the course
+	 * and view it.
+	 * 
+	 * @param loginPage
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	@Test
+	@RunAsClient
+	public void createCourse(@InitialPage LoginPage loginPage)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		
+		//go to authoring
+		AuthoringEnvPage authoringEnv = navBar
+			.assertOnNavigationPage()
+			.openAuthoringEnvironment();
+		
+		String title = "Create-Selen-" + UUID.randomUUID();
+		//create course
+		RepositoryEditDescriptionPage editDescription = authoringEnv
+			.openCreateDropDown()
+			.clickCreate(ResourceType.course)
+			.fillCreateForm(title)
+			.assertOnGeneralTab();
+		
+		//from description editor, back to the course
+		editDescription
+			.clickToolbarBack();
+		
+		//open course editor
+		CoursePageFragment course = CoursePageFragment.getCourse(browser);
+		CourseEditorPageFragment editor = course
+			.assertOnCoursePage()
+			.assertOnTitle(title)
+			.openToolsMenu()
+			.edit();
+		
+		//create a course element of type info messages
+		PublisherPageFragment publisher = editor
+			.assertOnEditor()
+			.createNode("info")
+			.publish();
+		
+		//publish
+		publisher
+			.assertOnPublisher()
+			.nextSelectNodes()
+			.selectAccess(UserAccess.guest)
+			.nextAccess()
+			.selectCatalog(false)
+			.nextCatalog() // -> no problem found
+			.finish();
+		
+		//back to the course
+		CoursePageFragment publishedCourse = editor
+			.clickToolbarBack();
+		
+		//review the course
+		publishedCourse
+			.assertOnCoursePage()
+			.clickTree();
+	}
+	
+	/**
+	 * Check if we can create and open a course with this
+	 * name: It's me, the "course".
+	 * @see https://jira.openolat.org/browse/OO-1839
+	 * 
+	 * @param loginPage
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	@Test
+	@RunAsClient
+	public void createCourseWithSpecialCharacters(@InitialPage LoginPage loginPage)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		
+		//go to authoring
+		AuthoringEnvPage authoringEnv = navBar
+			.assertOnNavigationPage()
+			.openAuthoringEnvironment();
+		
+		String marker = Long.toString(System.currentTimeMillis());
+		String title = "It's me, the \"course\" number " + marker;
+		//create course
+		RepositoryEditDescriptionPage editDescription = authoringEnv
+			.openCreateDropDown()
+			.clickCreate(ResourceType.course)
+			.fillCreateForm(title)
+			.assertOnGeneralTab();
+		
+		//from description editor, back to the course
+		editDescription
+			.clickToolbarBack();
+		
+		//close the course
+		navBar.closeTab();
+		
+		//select the authoring
+		navBar
+			.openAuthoringEnvironment()
+			.selectResource(marker);
+		
+		new CoursePageFragment(browser)
+			.assertOnCoursePage();
+	}
+	
+	/**
+	 * Create a course, use the course wizard, select all course
+	 * elements and go further with the standard settings.
+	 * 
+	 * Go from the description editor to the course, check
+	 * that the course is automatically published and that
+	 * the five course elements are there.
+	 * 
+	 * @param loginPage
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	@Test
+	@RunAsClient
+	public void createCourse_withWizard(@InitialPage LoginPage loginPage)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		
+		//go to authoring
+		AuthoringEnvPage authoringEnv = navBar
+			.assertOnNavigationPage()
+			.openAuthoringEnvironment();
+		
+		String title = "Create-Course-Wizard-" + UUID.randomUUID().toString();
+		//create course
+		CourseWizardPage courseWizard = authoringEnv
+			.openCreateDropDown()
+			.clickCreate(ResourceType.course)
+			.fillCreateFormAndStartWizard(title);
+		
+		courseWizard
+			.selectAllCourseElements()
+			.nextNodes()
+			.nextCatalog()
+			.finish();
+		//OOGraphene.closeErrorBox(browser);//STMP error
+		
+		RepositoryEditDescriptionPage editDescription = new RepositoryEditDescriptionPage(browser);
+		//from description editor, back to details and launch the course
+		editDescription
+			.assertOnGeneralTab();
+		OOGraphene.closeErrorBox(browser);//close mail error
+		editDescription	
+			.clickToolbarBack();
+		
+		//open course editor
+		CoursePageFragment course = CoursePageFragment.getCourse(browser);
+		course
+			.assertOnCoursePage()
+			.assertOnTitle(title);
+		
+		//assert the 5 nodes are there and click them
+		By nodeBy = By.cssSelector("span.o_tree_link.o_tree_l1.o_tree_level_label_leaf>a");
+		List<WebElement> nodes = browser.findElements(nodeBy);
+		Assert.assertEquals(5, nodes.size());
+		for(WebElement node:nodes) {
+			node.click();
+			OOGraphene.waitBusy(browser);
+		}
+	}
+	
+	/**
+	 * An author create a course, add a second user as co-author
+	 * of the course, and edit the course.<br>
+	 * The co-author select the course and try to edit it, unsuccessfully.
+	 * It try to edit the course directly from the author list without
+	 * success.<br>
+	 * The author closes the editor and the co-author is allowed to edit.
+	 * The author cannot edit i anymore...
+	 * 
+	 * @param loginPage Login page of the author
+	 * @param coAuthorBrowser the browser for the coauthor
+	 */
+	@Test
+	@RunAsClient
+	public void concurrentEditCourse(@InitialPage LoginPage loginPage,
+			@Drone @Participant WebDriver coAuthorBrowser)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		UserVO coAuthor = new UserRestClient(deploymentUrl).createAuthor("Rei");
+		loginPage
+			.loginAs(author.getLogin(), author.getPassword())
+			.resume();
+		
+		//go to authoring
+		AuthoringEnvPage authoringEnv = navBar
+			.assertOnNavigationPage()
+			.openAuthoringEnvironment();
+		
+		String title = "Coedit-" + UUID.randomUUID();
+		//create course
+		authoringEnv
+			.openCreateDropDown()
+			.clickCreate(ResourceType.course)
+			.fillCreateForm(title)
+			.assertOnGeneralTab()
+			.clickToolbarBack();
+		//add a second owner
+		MembersPage members = new CoursePageFragment(browser)
+			.members();
+		members
+			.addMember()
+			.searchMember(coAuthor, true)
+			.nextUsers()
+			.nextOverview()
+			.selectRepositoryEntryRole(true, false, false)
+			.nextPermissions()
+			.finish();
+		//open the editor
+		CoursePageFragment coursePage = members
+			.clickToolbarBack();
+		CourseEditorPageFragment editor = coursePage
+			.edit();
+		
+		//the second author come in
+		LoginPage coAuthroLoginPage = LoginPage.getLoginPage(coAuthorBrowser, deploymentUrl);
+		coAuthroLoginPage
+			.loginAs(coAuthor.getLogin(), coAuthor.getPassword())
+			.resume();
+	
+		//go to authoring
+		NavigationPage coAuthorNavBar = new NavigationPage(coAuthorBrowser);
+		coAuthorNavBar
+			.assertOnNavigationPage()
+			.openAuthoringEnvironment()
+			.selectResource(title);
+		//try to edit
+		CoursePageFragment coAuthorCourse = new CoursePageFragment(coAuthorBrowser);
+		coAuthorCourse
+			.tryToEdit()
+			.assertOnWarning();
+		
+		//retry in list
+		coAuthorNavBar
+			.openAuthoringEnvironment()
+			.editResource(title);
+		new CourseEditorPageFragment(coAuthorBrowser)
+			.assertOnWarning();
+		
+		//author close the course editor
+		editor
+			.clickToolbarBack();
+		coursePage
+			.assertOnCoursePage();
+		
+		//co-author edit the course
+		CourseEditorPageFragment coAuthorEditor = coAuthorCourse
+			.edit()
+			.assertOnEditor();
+		
+		//author try
+		coursePage
+			.tryToEdit()
+			.assertOnWarning();
+		
+		//co-author close the editor
+		coAuthorEditor
+			.clickToolbarBack()
+			.assertOnCoursePage();
+		
+		//author reopens the editor
+		coursePage
+			.edit()
+			.assertOnEditor();
+	}
+	
+	/**
+	 * An author create a course, a user see it.<br>
+	 * The author change the course and publish it. The user
+	 * must see a warning if the same node as been modified.
+	 * 
+	 * @param loginPage
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	@Test
+	@RunAsClient
+	public void concurrentVisitAndPublish(@InitialPage LoginPage loginPage,
+			@Drone @User WebDriver ryomouBrowser)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		UserVO ryomou = new UserRestClient(deploymentUrl).createRandomUser("Ryomou");
+		
+		//create a course
+		String courseTitle = "Course to publish-" + UUID.randomUUID().toString();
+		navBar
+			.openAuthoringEnvironment()
+			.createCourse(courseTitle)
+			.clickToolbarBack();
+		
+		//open course editor
+		CoursePageFragment course = CoursePageFragment.getCourse(browser);
+		CourseEditorPageFragment editor = course
+			.assertOnCoursePage()
+			.assertOnTitle(courseTitle)
+			.openToolsMenu()
+			.edit();
+		
+		//create a course element of type info messages
+		String firstNodeTitle = "First node";
+		String secondNodeTitle = "Second node";
+		editor
+			.assertOnEditor()
+			.createNode("info")
+			.nodeTitle(firstNodeTitle)
+			.createNode("st")
+			.nodeTitle(secondNodeTitle)
+			.publish()
+			.quickPublish(UserAccess.registred);
+		
+		// The user opens the course
+		LoginPage ryomouLoginPage = LoginPage.getLoginPage(ryomouBrowser, deploymentUrl);
+		ryomouLoginPage
+			.loginAs(ryomou.getLogin(), ryomou.getPassword())
+			.resume();
+		NavigationPage ryomouNavBar = new NavigationPage(ryomouBrowser);
+		ryomouNavBar
+			.openMyCourses()
+			.openSearch()
+			.extendedSearch(courseTitle)
+			.select(courseTitle)
+			.start();
+		CoursePageFragment ryomouCourse = new CoursePageFragment(ryomouBrowser);
+		MenuTreePageFragment ryomouCourseTree = ryomouCourse
+			.clickTree()
+			.selectWithTitle(firstNodeTitle);
+		
+		//The author make a change on node 2
+		String changedNodeTitlev2 = "Changed 2 title";
+		course = editor
+			.selectNode(secondNodeTitle)
+			.nodeTitle(changedNodeTitlev2)
+			.autoPublish();
+		
+		//The user click the first node and the changed second node
+		ryomouCourseTree
+			.selectWithTitle(firstNodeTitle)
+			.selectWithTitle(changedNodeTitlev2);
+		ryomouCourse
+			.assertOnTitle(changedNodeTitlev2);
+		
+		//The author changed the second node
+		String changedNodeTitlev3 = "Changed 3 title";
+		course = course.edit()
+			.selectNode(changedNodeTitlev2)
+			.nodeTitle(changedNodeTitlev3)
+			.autoPublish();
+		
+		//The user wait the message
+		ryomouCourse
+			.assertOnRestart()
+			.clickRestart();
+		ryomouCourseTree
+			.selectWithTitle(changedNodeTitlev3);
+		ryomouCourse
+			.assertOnTitle(changedNodeTitlev3);
+	}
+	
+	/**
+	 * Test that renaming the root node is reflected after
+	 * publishing.
+	 * 
+	 * @param loginPage
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	@Test
+	@RunAsClient
+	public void courseRename(@InitialPage LoginPage loginPage)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		
+		//create a course
+		String courseTitle = "Course to rename-" + UUID.randomUUID().toString();
+		navBar
+			.openAuthoringEnvironment()
+			.createCourse(courseTitle)
+			.clickToolbarBack();
+		
+		//open course editor
+		CoursePageFragment course = CoursePageFragment.getCourse(browser);
+		CourseEditorPageFragment editor = course
+			.assertOnCoursePage()
+			.assertOnTitle(courseTitle)
+			.openToolsMenu()
+			.edit();
+		
+		//create a course element of type info messages
+		course = editor
+			.assertOnEditor()
+			.createNode("info")
+			.autoPublish();
+		//check that the root node has the name of the repository entry
+		course
+			.assertOnTitle(courseTitle);
+		
+		//rename the root node
+		String newCourseName = "Renamed course";
+		course = course
+			.edit()
+			.selectRoot()
+			.nodeTitle(newCourseName)
+			.autoPublish();
+		
+		//assert the changed name
+		course
+			.assertOnTitle(newCourseName);
+	}
+	
+	/**
+	 * 
+	 * Create a catalog, create a course, while publishing add the
+	 * course to the catalog. Go to the catalog, find the course and
+	 * open it.
+	 * 
+	 * @param loginPage
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	@Test
+	@RunAsClient
+	public void catalogRoundTrip(@Drone @Administrator WebDriver adminBrowser,
+			@Drone @User WebDriver userBrowser)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		UserVO user = new UserRestClient(deploymentUrl).createRandomUser();
+		
+		//administrator create the categories in the catalog
+		LoginPage adminLogin = LoginPage.getLoginPage(adminBrowser, deploymentUrl);
+		adminLogin
+			.loginAs("administrator", "openolat")
+			.resume();
+		NavigationPage adminNavBar = new NavigationPage(adminBrowser);
+		
+		String node1 = "First level " + UUID.randomUUID();
+		String node2_1 = "Second level first element " + UUID.randomUUID();
+		String node2_2 = "Second level second element " + UUID.randomUUID();
+		adminNavBar
+				.openCatalogAdministration()
+				.addCatalogNode(node1, "First level of the catalog")
+				.selectNode(node1)
+				.addCatalogNode(node2_1, "First element of the second level")
+				.addCatalogNode(node2_2, "Second element of the second level");
+		
+		//An author create a course and publish it under a category
+		//created above
+		LoginPage login = LoginPage.getLoginPage(browser, deploymentUrl);
+		login
+			.loginAs(author.getLogin(), author.getPassword())
+			.resume();
+		String courseTitle = "Catalog-Course-" + UUID.randomUUID();
+		navBar
+			.openAuthoringEnvironment()
+			.createCourse(courseTitle)
+			.clickToolbarBack();
+	
+		CourseEditorPageFragment courseEditor = CoursePageFragment.getCourse(browser)
+			.edit();
+		courseEditor
+			.publish()
+			.nextSelectNodes()
+			.selectAccess(UserAccess.guest)
+			.nextAccess()
+			.selectCatalog(true)
+			.selectCategory(node1, node2_2)
+			//.nextCatalog() // -> no problem found
+			.finish();
+		
+		//User logs in, go to "My courses", navigate the catalog and start
+		//the course
+		LoginPage userLogin = LoginPage.getLoginPage(userBrowser, deploymentUrl);
+		userLogin
+			.loginAs(user.getLogin(), user.getPassword())
+			.resume();
+
+		NavigationPage userNavBar = new NavigationPage(userBrowser);
+		userNavBar
+			.openMyCourses()
+			.openCatalog()
+			.selectCatalogEntry(node1)
+			.selectCatalogEntry(node2_2)
+			.select(courseTitle)//go to the details page
+			.start();
+		
+		By courseTitleBy = By.cssSelector("div.o_course_run h2");
+		WebElement courseTitleEl = userBrowser.findElement(courseTitleBy);
+		Assert.assertTrue(courseTitleEl.getText().contains(courseTitle));
+	}
+	
+	/**
+	 * Create a course with a calendar element, add a recurring event
+	 * all day, modify an occurence to an event between 13h and 15h.
+	 * Remove an other single occurence and at the end, remove all remaining
+	 * events by removing the original event and confirm that
+	 * all must be deleted.
+	 * 
+	 * @param loginPage
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	@Test
+	@RunAsClient
+	public void createCourseWithCalendar(@InitialPage LoginPage loginPage)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		
+		//create a course
+		String courseTitle = "Course-With-iCal-" + UUID.randomUUID();
+		navBar
+			.openAuthoringEnvironment()
+			.createCourse(courseTitle)
+			.clickToolbarBack();
+		
+		navBar.openCourse(courseTitle);
+		
+		String calendarNodeTitle = "iCal-1";
+		//create a course element of type calendar
+		CourseEditorPageFragment courseEditor = CoursePageFragment.getCourse(browser)
+			.edit();
+		courseEditor
+			.createNode("cal")
+			.nodeTitle(calendarNodeTitle);
+		
+		//publish the course
+		courseEditor
+			.publish()
+			.quickPublish();
+		
+		//open the course and see the calendar
+		CoursePageFragment course = courseEditor
+			.clickToolbarBack();
+		course
+			.clickTree()
+			.selectWithTitle(calendarNodeTitle);
+		// create a recurring event
+		CalendarPage calendar = new CalendarPage(browser);
+		calendar
+			.addEvent(3)
+			.setDescription("Eventhor", "Hammer", "Asgard")
+			.setAllDay(true)
+			.setRecurringEvent(KalendarEvent.WEEKLY, 28)
+			.save();
+		// modify an occurence
+		calendar
+			.openDetailsOccurence("Eventhor", 17)
+			.edit()
+			.setAllDay(false)
+			.setBeginEnd(13, 15)
+			.save()
+			.confirmModifyOneOccurence();
+		
+		// check
+		calendar
+			.assertOnEvents("Eventhor", 4)
+			.assertOnEventsAt("Eventhor", 1, 13);
+		
+		// modify all events
+		calendar
+			.openDetailsOccurence("Eventhor", 3)
+			.edit()
+			.setDescription("Eventoki", null, null)
+			.save()
+			.confirmModifyAllOccurences();
+		// check
+		calendar
+			.assertOnEvents("Eventoki", 3)
+			.assertOnEventsAt("Eventhor", 1, 13);
+		
+		// delete an occurence
+		calendar
+			.openDetailsOccurence("Eventoki", 10)
+			.edit()
+			.delete()
+			.confirmDeleteOneOccurence();
+		// check
+		calendar
+			.assertOnEvents("Eventoki", 2)
+			.assertOnEventsAt("Eventhor", 1, 13);
+		
+		// delete all
+		calendar
+			.openDetailsOccurence("Eventoki", 3)
+			.edit()
+			.delete()
+			.confirmDeleteAllOccurences();
+		
+		OOGraphene.waitingALittleBit();
+		calendar
+			.assertZeroEvent();
+	}
+	
+	/**
+	 * This is a variant of the test above based on the
+	 * feedback of our beta-testerin.
+	 * 
+	 * @param loginPage
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	@Test
+	@RunAsClient
+	public void createCourseWithCalendar_alt(@InitialPage LoginPage loginPage)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		
+		//create a course
+		String courseTitle = "Course-iCal-" + UUID.randomUUID();
+		navBar
+			.openAuthoringEnvironment()
+			.createCourse(courseTitle)
+			.clickToolbarBack();
+		
+		navBar.openCourse(courseTitle);
+		
+		// activate the calendar options
+		CoursePageFragment course = CoursePageFragment.getCourse(browser);
+		course
+			.options()
+			.calendar(Boolean.TRUE)
+			.save()
+			.clickToolbarBack();
+		
+		String calendarNodeTitle = "iCal-2";
+		//create a course element of type calendar
+		CourseEditorPageFragment courseEditor = CoursePageFragment.getCourse(browser)
+			.edit();
+		courseEditor
+			.createNode("cal")
+			.nodeTitle(calendarNodeTitle);
+		
+		//publish the course
+		course = courseEditor
+			.autoPublish();
+		//open the course and see the CP
+		course
+			.clickTree()
+			.selectWithTitle(calendarNodeTitle);
+		
+		// create a recurring event
+		CalendarPage calendar = new CalendarPage(browser);
+		calendar
+			.addEvent(2)
+			.setDescription("Repeat", "Loop", "Foreach")
+			.setAllDay(false)
+			.setBeginEnd(14, 18)
+			.setRecurringEvent(KalendarEvent.WEEKLY, 28)
+			.save()
+			.assertOnEvents("Repeat", 4);
+		
+		//pick an occurence which is not the first and modify it
+		calendar
+			.openDetailsOccurence("Repeat", 16)
+			.edit()
+			.setBeginEnd(15, 18)
+			.save()
+			.confirmModifyAllOccurences()
+			.assertOnEventsAt("Repeat", 4, 15);
+		
+		// delete futur event of the same event as above
+		calendar
+			.openDetailsOccurence("Repeat", 16)
+			.edit()
+			.delete()
+			.confirmDeleteFuturOccurences()
+			.assertOnEventsAt("Repeat", 2, 15);
+	}
+	
+	/**
+	 * An author creates a course, make it visible for
+	 * members and add an access control by password.
+	 * The user search for the course, books it and give
+	 * the password.<br/>
+	 * The author checks in the list of orders if the booking
+	 * of the user is there and after it checks if the user is
+	 * in the member list too.
+	 * 
+	 * @param loginPage
+	 * @param ryomouBrowser
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	@Test
+	@RunAsClient
+	public void courseBooking(@InitialPage LoginPage loginPage,
+			@Drone @User WebDriver ryomouBrowser)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		UserVO ryomou = new UserRestClient(deploymentUrl).createRandomUser("Ryomou");
+		
+		//go to authoring
+		AuthoringEnvPage authoringEnv = navBar
+			.assertOnNavigationPage()
+			.openAuthoringEnvironment();
+		
+		String title = "Create-Selen-" + UUID.randomUUID().toString();
+		//create course
+		authoringEnv
+			.openCreateDropDown()
+			.clickCreate(ResourceType.course)
+			.fillCreateForm(title)
+			.assertOnGeneralTab();
+
+		//open course editor
+		CoursePageFragment course = new CoursePageFragment(browser);
+		RepositoryAccessPage courseAccess = course
+			.openToolsMenu()
+			.edit()
+			.createNode("info")
+			.autoPublish()
+			.accessConfiguration()
+			.setUserAccess(UserAccess.registred);
+		//add booking by secret token
+		courseAccess
+			.boooking()
+			.openAddDropMenu()
+			.addTokenMethod()
+			.configureTokenMethod("secret", "The password is secret");
+		courseAccess
+			.clickToolbarBack();
+		
+		//a user search the course
+		LoginPage ryomouLoginPage = LoginPage.getLoginPage(ryomouBrowser, deploymentUrl);
+		ryomouLoginPage
+			.loginAs(ryomou.getLogin(), ryomou.getPassword())
+			.resume();
+		NavigationPage ryomouNavBar = new NavigationPage(ryomouBrowser);
+		ryomouNavBar
+			.openMyCourses()
+			.openSearch()
+			.extendedSearch(title)
+			.book(title);
+		//book the course
+		BookingPage booking = new BookingPage(ryomouBrowser);
+		booking
+			.bookToken("secret");
+		//check the course
+		CoursePageFragment bookedCourse = CoursePageFragment.getCourse(ryomouBrowser);
+		bookedCourse
+			.assertOnTitle(title);
+		
+		//Author go in the list of bookings of the course
+		BookingPage bookingList = course
+			.openToolsMenu()
+			.bookingTool();
+		bookingList
+			.assertFirstNameInListIsOk(ryomou);
+		
+		//Author go to members list
+		course
+			.members()
+			.assertFirstNameInList(ryomou);
+	}
+	
+
+	/**
+	 * An author creates a course, make it visible for
+	 * members and add an access control by free booking
+	 * with the auto booking enabled.<br/>
+	 * The user search for the course and enters it.<br/>
+	 * The author checks in the list of orders if the booking
+	 * of the user is there and after it checks if the user is
+	 * in the member list too.
+	 * 
+	 * @param loginPage
+	 * @param userBrowser
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	@Test
+	@RunAsClient
+	public void courseFreeBooking(@InitialPage LoginPage loginPage,
+			@Drone @User WebDriver userBrowser)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		UserVO user = new UserRestClient(deploymentUrl).createRandomUser("Kanu");
+		
+		//go to authoring
+		AuthoringEnvPage authoringEnv = navBar
+			.assertOnNavigationPage()
+			.openAuthoringEnvironment();
+		
+		String title = "AutoBooking-" + UUID.randomUUID();
+		//create course
+		authoringEnv
+			.openCreateDropDown()
+			.clickCreate(ResourceType.course)
+			.fillCreateForm(title)
+			.assertOnGeneralTab();
+
+		//open course editor
+		CoursePageFragment course = new CoursePageFragment(browser);
+		RepositoryAccessPage courseAccess = course
+			.openToolsMenu()
+			.edit()
+			.createNode("info")
+			.autoPublish()
+			.accessConfiguration()
+			.setUserAccess(UserAccess.registred);
+		//add booking by secret token
+		courseAccess
+			.boooking()
+			.openAddDropMenu()
+			.addFreeBooking()
+			.configureFreeBooking("It's free");
+		courseAccess
+			.clickToolbarBack();
+		
+		//a user search the course
+		LoginPage userLoginPage = LoginPage.getLoginPage(userBrowser, deploymentUrl);
+		userLoginPage
+			.loginAs(user.getLogin(), user.getPassword())
+			.resume();
+		NavigationPage userNavBar = new NavigationPage(userBrowser);
+		userNavBar
+			.openMyCourses()
+			.openSearch()
+			.extendedSearch(title)
+			.book(title);//book the course
+		//check the course
+		CoursePageFragment bookedCourse = CoursePageFragment.getCourse(userBrowser);
+		bookedCourse
+			.assertOnTitle(title);
+		
+		//Author go in the list of bookings of the course
+		BookingPage bookingList = course
+			.openToolsMenu()
+			.bookingTool();
+		bookingList
+			.assertFirstNameInListIsOk(user);
+		
+		//Author go to members list
+		course
+			.members()
+			.assertFirstNameInList(user);
+	}
+	
+	/**
+	 * An author create a course, set a start and end date for life-cycle.
+	 * It add a participant to the course. It creates a reminder
+	 * with a rule to catch only participant, an other to send
+	 * the reminder after the start of the course. It sends the reminder
+	 * manually, checks the reminders send, checks the log.
+	 * 
+	 * @param loginPage
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	@Test
+	@RunAsClient
+	public void courseReminders(@InitialPage LoginPage loginPage)
+	throws IOException, URISyntaxException {
+		//configure at least a license
+		loginPage
+			.loginAs("administrator", "openolat")
+			.resume();
+		new NavigationPage(browser)
+			.openAdministration()
+			.openLicenses()
+			.enableForResources("all rights reserved");
+		new UserToolsPage(browser)
+			.logout();
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		UserVO kanu = new UserRestClient(deploymentUrl).createRandomUser("Kanu");
+		
+		//go to authoring
+		AuthoringEnvPage authoringEnv = navBar
+			.assertOnNavigationPage()
+			.openAuthoringEnvironment();
+		
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(new Date());
+		cal.add(Calendar.DATE, -10);
+		Date validFrom = cal.getTime();
+		cal.add(Calendar.DATE, 20);
+		Date validTo = cal.getTime();
+		
+		String title = "Remind-me-" + UUID.randomUUID();
+		//create course
+		authoringEnv
+			.openCreateDropDown()
+			.clickCreate(ResourceType.course)
+			.fillCreateForm(title)
+			.assertOnGeneralTab()
+			.setLicense()
+			.setLifecycle(validFrom, validTo, Locale.GERMAN)
+			.save()
+			.clickToolbarBack();
+
+		//open course editor, create a node, set access
+		CoursePageFragment course = new CoursePageFragment(browser);
+		course
+			.openToolsMenu()
+			.edit()
+			.createNode("info")
+			.autoPublish()
+			.accessConfiguration()
+			.setUserAccess(UserAccess.membersOnly)
+			.clickToolbarBack();
+		// add a participant
+		course
+			.members()
+			.quickAdd(kanu);
+		
+		//go to reminders
+		RemindersPage reminders = course
+				.reminders()
+				.assertOnRemindersList();
+		
+		String reminderTitle = "REM-" + UUID.randomUUID();
+		reminders
+			.addReminder()
+			.setDescription(reminderTitle)
+			.setSubject(reminderTitle)
+			.setTimeBasedRule(1, "RepositoryEntryLifecycleAfterValidFromRuleSPI", 5, "day")
+			.addRule(1)
+			.setRoleBasedRule(2, "RepositoryEntryRoleRuleSPI", "participant")
+			.saveReminder()
+			.assertOnRemindersList()
+			.assertOnReminderInList(reminderTitle);
+		//send the reminders
+		reminders
+			.openActionMenu(reminderTitle)
+			.sendReminders();
+		//check the reminder is send to user
+		reminders
+			.openActionMenu(reminderTitle)
+			.showSentReminders()
+			//reminder send to user
+			.assertSentRemindersList(kanu, true)
+			//reminder not send to author
+			.assertSentRemindersList(author, false);
+		
+		//open reminders log
+		reminders
+			.clickToolbarBack()
+			.openLog()
+			.assertLogList(kanu, reminderTitle, true)
+			.assertLogList(author, reminderTitle, false);
+	}
+	
+	/**
+	 * An author creates a course with a structure element. The structure
+	 * element is password protected. Under it, there is an info node. The
+	 * course is published and a first user search the course, go to the
+	 * structure element, give the password and see the info node. A second
+	 * user grabs the rest url of the structure node, use it, give the password
+	 * and go to the info node.
+	 * 
+	 * @param loginPage
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	@Test
+	@RunAsClient
+	public void coursePassword(@InitialPage LoginPage loginPage,
+			@Drone @Participant WebDriver kanuBrowser,
+			@Drone @User WebDriver ryomouBrowser)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		UserVO kanu = new UserRestClient(deploymentUrl).createRandomUser("Kanu");
+		UserVO ryomou = new UserRestClient(deploymentUrl).createRandomUser("Ryomou");
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		
+		//go to authoring
+		AuthoringEnvPage authoringEnv = navBar
+			.assertOnNavigationPage()
+			.openAuthoringEnvironment();
+		
+		String title = "Password-me-" + UUID.randomUUID();
+		//create course
+		authoringEnv
+			.openCreateDropDown()
+			.clickCreate(ResourceType.course)
+			.fillCreateForm(title)
+			.assertOnGeneralTab()
+			.clickToolbarBack();
+		
+		String infoTitle = "Info - " + UUID.randomUUID();
+		String structureTitle = "St - " + UUID.randomUUID();
+
+		//open course editor, create a structure node
+		CoursePageFragment course = new CoursePageFragment(browser);
+		CourseEditorPageFragment editor = course
+			.openToolsMenu()
+			.edit();
+		editor
+			.createNode("st")
+			.nodeTitle(structureTitle);
+		String courseInfoUrl = editor.getRestUrl();
+		editor
+		//create an info node and move it under the structure node
+			.createNode("info")
+			.nodeTitle(infoTitle)
+			.moveUnder(structureTitle)
+			.selectNode(structureTitle)
+		//select and set password on structure node
+			.selectTabPassword()
+			.setPassword("super secret")
+		//publish
+			.autoPublish()
+			.accessConfiguration()
+			.setUserAccess(UserAccess.registred)
+			.clickToolbarBack();
+		
+		MenuTreePageFragment courseTree = course
+			.clickTree()
+			.selectWithTitle(structureTitle.substring(0, 20));
+		course
+			.assertOnPassword()
+			.enterPassword("super secret");
+		courseTree
+			.selectWithTitle(infoTitle.substring(0, 20));
+		course
+			.assertOnTitle(infoTitle);
+		
+		//First user go to the course
+		LoginPage kanuLoginPage = LoginPage.getLoginPage(kanuBrowser, deploymentUrl);
+		kanuLoginPage
+			.loginAs(kanu.getLogin(), kanu.getPassword())
+			.resume();
+
+		NavigationPage kanuNavBar = new NavigationPage(kanuBrowser);
+		kanuNavBar
+			.openMyCourses()
+			.openSearch()
+			.extendedSearch(title)
+			.select(title)
+			.start();
+		
+		//go to the structure, give the password
+		CoursePageFragment kanuCourse = new CoursePageFragment(kanuBrowser);
+		MenuTreePageFragment kanuTree = kanuCourse
+			.clickTree()
+			.selectWithTitle(structureTitle.substring(0, 20));
+		kanuCourse
+			.assertOnPassword()
+			.enterPassword("super secret");
+		kanuTree
+			.selectWithTitle(infoTitle.substring(0, 20));
+		kanuCourse
+			.assertOnTitle(infoTitle);
+		
+		//Second user use the rest url
+		LoginPage ryomouLoginPage = LoginPage.getLoginPage(ryomouBrowser, new URL(courseInfoUrl));
+		ryomouLoginPage
+			.loginAs(ryomou.getLogin(), ryomou.getPassword())
+			.resume();
+		
+		CoursePageFragment ryomouCourse = new CoursePageFragment(ryomouBrowser);
+		ryomouCourse
+			.assertOnPassword()
+			.enterPassword("super secret");
+		//find the secret info course element
+		ryomouCourse
+			.clickTree()
+			.selectWithTitle(structureTitle.substring(0, 20))
+			.selectWithTitle(infoTitle.substring(0, 20));
+		ryomouCourse
+			.assertOnTitle(infoTitle);
+	}
+	
+	
+	/**
+	 * An author creates a course with 4 course elements. A folder
+	 * which is visible to group, a forum which is visible to coaches,
+	 * an assessment and an info visible to the students which passed
+	 * the assessment above.<br>
+	 * a student come and checks what it can see, the author make it
+	 * pass the assessment and the student sees the info.
+	 * 
+	 * @param loginPage
+	 * @param kanuBrowser
+	 * @param reiBrowser
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	@Test
+	@RunAsClient
+	public void courseAccessRules(@InitialPage LoginPage loginPage,
+			@Drone @Student WebDriver reiBrowser)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		UserVO rei = new UserRestClient(deploymentUrl).createRandomUser("rei");
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		
+		//create a course
+		String courseTitle = "Course FO " + UUID.randomUUID();
+		navBar
+			.openAuthoringEnvironment()
+			.createCourse(courseTitle)
+			.clickToolbarBack();
+	
+		//go the authoring environment to create a forum
+		String bcTitle = "BC - " + UUID.randomUUID();
+		String foTitle = "FO - " + UUID.randomUUID();
+		String msTitle = "MS - " + UUID.randomUUID();
+		String infoTitle = "Info - " + UUID.randomUUID();
+		
+		String groupName = "Students";
+		
+		CourseEditorPageFragment courseEditor = CoursePageFragment.getCourse(browser)
+			.edit();
+		//folder is group protected
+		courseEditor
+			.createNode("bc")
+			.nodeTitle(bcTitle)
+			.selectTabVisibility()
+			.setGroupCondition()
+			.createBusinessGroup(groupName);
+		//forum is coach exclusive
+		courseEditor
+			.createNode("fo")
+			.nodeTitle(foTitle)
+			.selectTabVisibility()
+			.setCoachExclusive()
+			.save();
+		//assessment is open
+		courseEditor
+			.createNode("ms")
+			.nodeTitle(msTitle);
+		//configure assessment
+		AssessmentCEConfigurationPage assessmentConfig = new AssessmentCEConfigurationPage(browser);
+		assessmentConfig
+			.selectConfiguration()
+			.setScoreAuto(0.0f, 6.0f, 4.0f);
+		
+		//wiki is assessment dependent
+		courseEditor
+			.createNode("info")
+			.nodeTitle(infoTitle)
+			.selectTabVisibility()
+			.setAssessmentCondition(1)
+			.save();
+		
+		OOGraphene.scrollTop(browser);
+		courseEditor
+			.publish()
+			.nextSelectNodes()
+			.selectAccess(UserAccess.membersOnly)
+			.nextAccess()
+			.selectCatalog(false)
+			.nextCatalog() // -> no problem found
+			.finish();
+		courseEditor
+			.clickToolbarBack();
+		
+		//add a member to the group we create above
+		MembersPage members = CoursePageFragment
+			.getCourse(browser)
+			.members();
+		members
+			.addMember()
+			.searchMember(rei, true)
+			.nextUsers()
+			.nextOverview()
+			.selectGroupAsParticipant(groupName)
+			.nextPermissions()
+			.finish();
+		
+		//participant search the course
+		LoginPage.getLoginPage(reiBrowser, deploymentUrl)
+			.loginAs(rei)
+			.resume();
+		NavigationPage reiNavBar = new NavigationPage(reiBrowser);
+		reiNavBar
+			.openMyCourses()
+			.select(courseTitle);
+		
+		MenuTreePageFragment reiTree = new MenuTreePageFragment(reiBrowser);
+		reiTree
+			.assertWithTitle(bcTitle.substring(0, 20))
+			.assertWithTitle(msTitle.substring(0, 20))
+			.assertTitleNotExists(foTitle.substring(0, 20))
+			.assertTitleNotExists(infoTitle.substring(0, 20));
+		
+		//author set assessment to passed
+		AssessmentToolPage assessmentTool = members
+			.clickToolbarBack()
+			.assessmentTool();
+		assessmentTool
+			.users()
+			.assertOnUsers(rei)
+			.selectUser(rei)
+			.selectUsersCourseNode(msTitle.substring(0, 20))
+			.setAssessmentScore(5.5f)
+			.assertUserPassedCourseNode(msTitle.substring(0, 20));
+		
+		//student can see info
+		reiTree
+			.selectRoot()
+			.assertWithTitle(bcTitle.substring(0, 20))
+			.assertWithTitle(msTitle.substring(0, 20))
+			.assertTitleNotExists(foTitle.substring(0, 20))
+			.assertWithTitle(infoTitle.substring(0, 20));
+		
+		//author can see all
+		assessmentTool
+			.clickToolbarRootCrumb()
+			.clickTree()
+			.assertWithTitle(bcTitle.substring(0, 20))
+			.assertWithTitle(msTitle.substring(0, 20))
+			.assertWithTitle(foTitle.substring(0, 20))
+			.assertWithTitle(infoTitle.substring(0, 20));
+	}
+	
+	/**
+	 *  First, an administrator make in administration part
+	 * the confirmation of group's membership mandatory if
+	 * the group is created by an author.<br>
+	 * 
+	 * An author create a course and a group and add two
+	 * participants. The first user jump to the course
+	 * with a rest url, log in, confirm its membership
+	 * and see the course.<br>
+	 * The second participant log-in, confirm its membership,
+	 * go the "My courses" and visit the course.
+	 * 
+	 * @param loginPage
+	 * @param authorBrowser
+	 * @param participantBrowser
+	 * @param reiBrowser
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	@Test
+	@RunAsClient
+	public void confirmMembershipForCourse(@InitialPage LoginPage loginPage,
+			@Drone @Author WebDriver authorBrowser,
+			@Drone @Participant WebDriver participantBrowser,
+			@Drone @Student WebDriver reiBrowser)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		UserVO rei = new UserRestClient(deploymentUrl).createRandomUser("Rei");
+		UserVO participant = new UserRestClient(deploymentUrl).createRandomUser();
+		
+		//admin make the confirmation of membership mandatory
+		//for groups created by standard users.
+		loginPage
+			.loginAs("administrator", "openolat")
+			.resume();
+		AdministrationPage administration = new NavigationPage(browser)
+			.openAdministration()
+			.openGroupSettings()
+			.setGroupConfirmationForAuthor(true);
+		
+		//author create a course
+		String courseTitle = "Membership " + UUID.randomUUID();
+		LoginPage.getLoginPage(authorBrowser, deploymentUrl)
+			.loginAs(author)
+			.resume();
+		NavigationPage authorNavBar = new NavigationPage(authorBrowser);
+		authorNavBar
+			.openAuthoringEnvironment()
+			.createCourse(courseTitle)
+			.clickToolbarBack();
+
+		String groupName = "Groupship " + UUID.randomUUID();
+		MembersPage members = CoursePageFragment
+			.getCourse(authorBrowser)
+			.members();
+		//create a group
+		members
+			.selectBusinessGroups()
+			.createBusinessGroup(groupName, "-", 1, false, false);
+		//return to course
+		authorNavBar.openCourse(courseTitle);
+		//add the 2 participants to the group
+		members
+			.selectMembers()
+			.addMember()
+			.searchMember(rei, true)
+			.nextUsers()
+			.nextOverview()
+			.selectGroupAsParticipant(groupName)
+			.nextPermissions()
+			.finish();
+		members
+			.addMember()
+			.searchMember(participant, true)
+			.nextUsers()
+			.nextOverview()
+			.selectGroupAsParticipant(groupName)
+			.nextPermissions()
+			.finish();
+		members
+			.clickToolbarBack();
+		
+		//set the course for members only
+		CoursePageFragment
+			.getCourse(authorBrowser)
+			.accessConfiguration()
+			.setUserAccess(UserAccess.registred);
+		
+		String currentUrl = authorBrowser.getCurrentUrl();
+		int index = currentUrl.indexOf("/Access");
+		Assert.assertTrue(index > 0);
+		String courseUrl = currentUrl.substring(0, index);
+		
+		//rest url -> login -> accept membership
+		reiBrowser.get(courseUrl);
+		new LoginPage(reiBrowser)
+			.loginAs(rei.getLogin(), rei.getPassword())
+			.assertOnMembershipConfirmation()
+			.confirmMembership();
+		new CoursePageFragment(reiBrowser)
+			.assertOnCoursePage()
+			.assertOnTitle(courseTitle);
+		
+		//participant login -> accept membership -> my courses -> course
+		LoginPage participantLoginPage = LoginPage.getLoginPage(participantBrowser, deploymentUrl);
+		participantLoginPage
+			.loginAs(participant.getLogin(), participant.getPassword())
+			.assertOnMembershipConfirmation()
+			.confirmMembership();
+		NavigationPage participantNavBar = new NavigationPage(participantBrowser);
+		participantNavBar
+			.openMyCourses()
+			.select(courseTitle);
+		new CoursePageFragment(participantBrowser)
+			.assertOnCoursePage()
+			.assertOnTitle(courseTitle);
+		
+		//reset the settings
+		administration.setGroupConfirmationForAuthor(false);	
+	}
+	
+	/**
+	 * An author creates a CP, changes the name of a page, import 
+	 * an other page, create two pages and delete one, import an
+	 * image...<br>
+	 * A user come to see the CP, check that the deleted page is
+	 * really deleted and that the "Small HTML page" exists and
+	 * can be read.
+	 * 
+	 * @param loginPage
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	@Test
+	@RunAsClient
+	public void createContentPackage(@InitialPage LoginPage loginPage,
+			@Drone @User WebDriver ryomouBrowser)
+			throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		UserVO ryomou = new UserRestClient(deploymentUrl).createRandomUser("Ryomou");
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		
+		//create a CP
+		String cpTitle = "CP " + UUID.randomUUID();
+		navBar
+			.openAuthoringEnvironment()
+			.createCP(cpTitle)
+			.clickToolbarBack();
+		
+		String firstPage = "Page 1 " + UUID.randomUUID();
+		String secondPage = "Seite 2 " + UUID.randomUUID();
+		String thirdPage = "Feuillet 3 " + UUID.randomUUID();
+		String deletedPage = "To delete 4 " + UUID.randomUUID();
+		
+		URL pageUrl = JunitTestHelper.class.getResource("file_resources/page.html");
+		File pageFile = new File(pageUrl.toURI());
+		URL imageUrl = JunitTestHelper.class.getResource("file_resources/IMG_1482.JPG");
+		File imageFile = new File(imageUrl.toURI());
+		
+		CPPage cpPage = new CPPage(browser);
+		cpPage
+			.openEditor()
+			//rename page
+			.editMetadata(firstPage)
+			.clickRoot()
+			.newPage(secondPage)
+			.clickRoot()
+			.newPage(deletedPage)
+			.clickRoot()
+			//import a page and change the title
+			.importPage(pageFile)
+			.fillMetadataForm(thirdPage)
+			//import an image without changing the title
+			.importPage(imageFile)
+			.closeMetadataForm()
+			//delete page
+			.selectPage(deletedPage)
+			.deletePage()
+			//close the editor
+			.clickToolbarBack();
+		
+		//set access to registered members
+		cpPage
+			.accessConfiguration()
+			.setUserAccess(UserAccess.registred)
+			.clickToolbarBack();
+		
+		//a user search the content package
+		LoginPage ryomouLoginPage = LoginPage.getLoginPage(ryomouBrowser, deploymentUrl);
+		ryomouLoginPage
+			.loginAs(ryomou.getLogin(), ryomou.getPassword())
+			.resume();
+		NavigationPage ryomouNavBar = new NavigationPage(ryomouBrowser);
+		ryomouNavBar
+			.openMyCourses()
+			.openSearch()
+			.extendedSearch(cpTitle)
+			.select(cpTitle)
+			.start();
+		
+		CPPage ryomouPage = new CPPage(ryomouBrowser);
+		ryomouPage
+			.assertPageDeleted(deletedPage)
+			.assertInIFrame(By.xpath("//h1[text()[contains(.,'Small HTML page')]]"))
+			.selectPage(secondPage)
+			.selectPage(firstPage)
+			.assertInIFrame(By.xpath("//h2[text()[contains(.,'Lorem Ipsum')]]"));
+	}
+	
+	/**
+	 * Try to import a typical Windows zip with encoding issues. The goal
+	 * is to check that no ugly red screen are produced.
+	 * 
+	 * @param loginPage
+	 */
+	@Test
+	@RunAsClient
+	public void tryImportOfWindowsZip(@InitialPage LoginPage loginPage)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		
+		URL zipUrl = JunitTestHelper.class.getResource("file_resources/windows_zip.zip");
+		File zipFile = new File(zipUrl.toURI());
+		//go the authoring environment to create a CP
+		String zipTitle = "ZIP - " + UUID.randomUUID();
+		navBar
+			.openAuthoringEnvironment()
+			.uploadResource(zipTitle, zipFile)
+			.assertOnResourceType();
+	}
+}

@@ -1,0 +1,11 @@
+<h4>$r.translate("target.panel.title")</h4>
+#if($r.available("nodelimitexceededwarning"))
+<hr />
+$r.render("nodelimitexceededwarning")
+<hr />
+#end
+$r.render("selection")
+<div class="o_button_group">
+	$r.render("insertAtSelectedTreepos")
+	$r.render("cancel")
+</div>

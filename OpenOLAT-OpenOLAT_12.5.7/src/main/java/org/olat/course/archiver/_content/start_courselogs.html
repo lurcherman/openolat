@@ -1,0 +1,11 @@
+<h4>$r.translate("course.logs.title")</h4>
+#if ($hasLogArchiveAccess)
+	$r.render("logfilechooserform")
+	#if ($hascourselogarchive)
+		<hr />
+		<p>$body</p>
+		<p>$r.render("showfile")</p>
+	#end
+#else
+	<p class="o_warning">$r.translate("course.logs.noaccess")</p>
+#end

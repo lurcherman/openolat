@@ -1,0 +1,31 @@
+<div id="$r.getCId()" class="o_titled_wrapper $wrapperCss">
+#if($title)
+	<h${size}>
+		#if($iconCss) 
+		<i class="o_icon $iconCss"></i> 
+		#end
+		#if($contextTitle)
+			<span>$contextTitle:</span>
+		#end	
+		$title
+		#if($subTitle)
+			<small>$subTitle:</small>
+		#end			
+	</h$size>
+#end
+#if($r.available("description"))
+	$r.render("description")
+#end
+#if($r.available("courseSearch"))
+    <div id="o_forum_fulltextsearch" class="o_forum_fulltextsearch">
+	$r.render("courseSearch")
+	</div>
+#end
+#if($separator)
+	<hr />
+#end
+<div class="o_content">
+	$r.render("child")
+</div>
+</div>
+

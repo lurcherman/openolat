@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                        http://www.springframework.org/schema/beans/spring-beans.xsd ">
+
+	<bean class="org.olat.core.extensions.action.GenericActionExtension" init-method="initExtensionPoints">
+		<property name="actionController">	
+			<bean class="org.olat.core.gui.control.creator.AutoCreator" scope="prototype">
+				<property name="className" value="org.olat.core.commons.controllers.impressum.ImpressumController"/>
+			</bean>
+		</property>
+		<property name="extensionPoints">
+			<list>	
+				<value>org.olat.core.commons.controllers.impressum.ImpressumMainController</value>
+				<value>org.olat.core.commons.controllers.impressum.ImpressumDmzMainController</value>
+			</list>
+		</property>
+		<property name="order" value="701"/>
+	</bean>
+	
+	<bean class="org.olat.core.extensions.action.GenericActionExtension" init-method="initExtensionPoints">
+		<property name="actionController">	
+			<bean class="org.olat.core.gui.control.creator.AutoCreator" scope="prototype">
+				<property name="className" value="org.olat.core.commons.controllers.impressum.TermsOfUseController"/>
+			</bean>
+		</property>
+		<property name="extensionPoints">
+			<list>	
+				<value>org.olat.core.commons.controllers.impressum.ImpressumMainController</value>
+				<value>org.olat.core.commons.controllers.impressum.ImpressumDmzMainController</value>
+			</list>
+		</property>
+		<property name="order" value="702"/>
+	</bean>
+	
+	<bean class="org.olat.core.extensions.action.GenericActionExtension" init-method="initExtensionPoints">
+		<property name="actionController">	
+			<bean class="org.olat.core.gui.control.creator.AutoCreator" scope="prototype">
+				<property name="className" value="org.olat.core.commons.controllers.impressum.ContactController"/>
+			</bean>
+		</property>
+		<property name="extensionPoints">
+			<list>	
+				<value>org.olat.core.commons.controllers.impressum.ImpressumMainController</value>		
+			</list>
+		</property>
+		<property name="order" value="703"/>
+	</bean>
+	
+
+	<bean class="org.olat.core.extensions.action.GenericActionExtension"  init-method="initExtensionPoints">
+		<property name="order" value="7208" />
+		<property name="actionController">	
+			<bean class="org.olat.core.gui.control.creator.AutoCreator" scope="prototype">
+				<property name="className" value="org.olat.core.commons.controllers.impressum.ImpressumAdminController"/>
+			</bean>
+		</property>
+		<property name="navigationKey" value="impressum" />
+		<property name="translationPackage" value="org.olat.core.commons.controllers.impressum"/>
+		<property name="i18nActionKey" value="menu.impressum"/>
+		<property name="i18nDescriptionKey" value="menu.impressum.alt"/>
+		<property name="parentTreeNodeIdentifier" value="sysAdminMenueNodeCustomizing" /> 
+		<property name="extensionPoints">
+			<list>	
+				<value>org.olat.admin.SystemAdminMainController</value>		
+			</list>
+		</property>
+	</bean>
+	
+	<bean class="org.olat.core.commons.controllers.impressum.ImpressumUserToolExtension" init-method="initExtensionPoints">
+		<property name="order" value="119" />
+		<property name="impressumModule" ref="impressumModule" />
+		<property name="navigationKey" value="impressum" />
+		<property name="translationPackage" value="org.olat.core.commons.controllers.impressum" />
+		<property name="i18nActionKey" value="menu.impressum"/>
+		<property name="i18nDescriptionKey" value="menu.impressum"/>
+		<property name="extensionPoints">
+			<list>	
+				<value>org.olat.home.HomeMainController</value>
+			</list>
+		</property>
+	</bean>
+	
+</beans>

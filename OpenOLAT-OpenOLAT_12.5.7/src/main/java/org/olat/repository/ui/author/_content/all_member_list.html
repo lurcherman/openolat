@@ -1,0 +1,27 @@
+#if($infos)
+	<div class="o_info">$infos</div>
+#end
+#if($r.available("add.member") || $r.available("import.member"))
+<div class="o_button_group o_button_group_right">
+	#if($r.available("add.member") && $r.available("import.member"))<div class="btn-group">#end
+	#if($r.available("add.member"))
+		$r.render("add.member")
+	#end
+	#if($r.available("import.member"))
+		$r.render("import.member")
+	#end
+	#if($r.available("add.member") && $r.available("import.member"))</div>#end
+</div>
+#end
+$r.render("memberList")
+<div class="o_button_group">
+	#if($r.available("edit.members"))
+		$r.render("edit.members")
+	#end
+	#if($r.available("table.header.mail"))
+		$r.render("table.header.mail")
+	#end
+	#if($r.available("table.header.remove"))
+		$r.render("table.header.remove")
+	#end
+</div>

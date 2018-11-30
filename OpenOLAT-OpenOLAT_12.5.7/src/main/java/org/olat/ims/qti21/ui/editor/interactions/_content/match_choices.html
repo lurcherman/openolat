@@ -1,0 +1,88 @@
+<fieldset class="o_form form-horizontal">
+
+<table id="qti_container_${responseIdentifier}" class="table">
+	<thead>
+		#if($r.isNotNull($showHeaders) && $showHeaders)
+		<tr>
+			<th style="border: none;"></th>
+			<th style="border: none;" colspan="${targetChoices.size()}">$r.translate("form.imd.layout.match.targets")</th>
+		</tr>
+		#end
+		<tr>
+			<th style="border-top: none;">
+			#if($r.isNotNull($showHeaders) && $showHeaders)
+				$r.translate("form.imd.layout.match.sources")
+			#end
+			</th>
+			#foreach($targetChoice in $targetChoices)
+				<th class="o_sel_match_target_${foreach.index}" style="border-top: none;">
+				#if($r.visible($targetChoice.text))
+					$r.render(${targetChoice.getText()})
+				#else
+					$r.render(${targetChoice.getTextReadOnly()})
+				#end
+				#if($f.hasError($item))
+					<span class="o_icon o_icon_error form-control-feedback"></span>
+				#end #if(!$restrictedEdit) <div class="pull-right">$r.render(${targetChoice.getDeleteButton()})</div> #end</th>
+			#end
+		</tr>
+	</thead>
+	<tbody>
+	#foreach($sourceChoice in $sourceChoices)
+		#set($set1Identifier = $sourceChoice.getIdentifierString())
+		<tr>
+			<th class="o_sel_match_source_${foreach.index}">
+				#if($r.visible($sourceChoice.text))
+					$r.render(${sourceChoice.getText()})
+				#else
+					$r.render(${sourceChoice.getTextReadOnly()})
+				#end
+				#if($f.hasError($item))
+				<span class="o_icon o_icon_error form-control-feedback"></span>
+				#end
+				#if(!$restrictedEdit) <div class="pull-right">$r.render(${sourceChoice.getDeleteButton()})</div> #end
+			</th>
+			#set($sourceIndex = ${foreach.index})
+			#foreach($targetChoice in $targetChoices)
+				#set($set2Identifier = $targetChoice.getIdentifierString())
+				#set($responseValue = $set1Identifier + " " + $set2Identifier)
+				<td class="o_sel_match_${sourceIndex}_${foreach.index}">
+					<input id="oo_${set1Identifier}_${set2Identifier}" type="checkbox" name="qtiworks_response_${responseIdentifier}" value="${responseValue}" #if(${sourceChoice.isCorrect(${targetChoice.getIdentifier()})}) checked #end #if($restrictedEdit) disabled #end/>
+					$f.appendFlexiFormDirtyForCheckbox("oo_${set1Identifier}_${set2Identifier}")
+					#if(${sourceChoice.isErrorSingleChoice()})
+						<div class="o_error">$r.translate("error.singlechoice")</div>
+					#end
+				</td>
+			#end
+		</tr>
+	#end
+	</tbody>
+</table>
+#if(!$restrictedEdit)
+<script type='text/javascript'>
+jQuery(function() {
+	jQuery('#qti_container_${responseIdentifier}').matchInteraction({
+		responseIdentifier: '$responseIdentifier',
+		formDispatchFieldId: '1234',
+		maxAssociations: $interactionMaxAssociations,
+		leftData: {#foreach($choice1 in $sourceChoices) #if($foreach.count > 1),#end $choice1.identifier:$choice1.matchMax #end},
+		rightData: {#foreach($choice2 in $targetChoices) #if($foreach.count > 1),#end $choice2.identifier:$choice2.matchMax #end}
+	});
+});
+</script>
+#end
+
+#if($r.available("add.match.row") || $r.available("add.match.column") || $r.available("submit"))
+<div class="o_button_group o_sel_match_save">
+	#if($r.available("submit"))
+		$r.render("submit")
+	#end
+	#if($r.available("add.match.row"))
+		$r.render("add.match.row")
+	#end
+	#if($r.available("add.match.column"))
+		$r.render("add.match.column")
+	#end
+</div>
+#end
+</fieldset>

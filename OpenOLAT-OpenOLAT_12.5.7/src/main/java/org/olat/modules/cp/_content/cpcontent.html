@@ -1,0 +1,28 @@
+<div class="o_module_cp_wrapper clearfix">
+	#if($r.available("search_input") || $r.available("previous") || $r.available("next") || $r.available("print"))
+		<div class="o_tools clearfix">
+			#if($r.available("previous"))
+				$r.render("previous")
+			#end
+			#if($r.available("next"))
+				$r.render("next")
+			#end
+			#if($r.available("print"))
+				$r.render("print")
+			#end
+			#if($r.available("search_input"))
+				<div class="o_search_wrapper">
+				$r.render("search_input")
+				</div>
+			#end
+		</div>		
+	#end
+	#if($isIframeDelivered)
+		$r.render("cpContent")
+	#else 
+	<div class="o_scrollblock">
+		$r.render("cpContent")
+	</div>
+	#end
+</div>
+

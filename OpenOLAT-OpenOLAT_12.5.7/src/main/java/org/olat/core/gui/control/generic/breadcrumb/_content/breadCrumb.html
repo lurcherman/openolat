@@ -1,0 +1,8 @@
+<ol class="breadcrumb">
+	#foreach ($crumb in $breadCrumbs)
+		<li><span>$r.render($crumb.getCommand())</span></li>	
+	#end
+</ol>
+#if ($r.available("content"))
+	$r.render("content")
+#end

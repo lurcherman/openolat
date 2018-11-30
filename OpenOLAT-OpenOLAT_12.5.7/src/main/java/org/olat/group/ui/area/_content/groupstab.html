@@ -1,0 +1,9 @@
+<fieldset>
+	<legend>$r.translate("fieldset.legend.groups")</legend>
+	$r.contextHelpWithWrapper("Using Course Tools#_lernbereich")
+	#if ($noGroupsFound)
+		$r.translate("groupchoice.no.groups")
+    #else
+		$r.render("groupsChoice")
+    #end	
+</fieldset>

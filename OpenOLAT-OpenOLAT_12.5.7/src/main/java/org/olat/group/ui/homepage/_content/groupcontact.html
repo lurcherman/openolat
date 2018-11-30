@@ -1,0 +1,6 @@
+<h2><i class="o_icon o_icon_mail"> </i> $r.translate("contactform.title")</h2>
+#if ($r.available("contactForm"))
+	$r.render("contactForm")
+#else
+	$nobodyErrorMessage
+#end

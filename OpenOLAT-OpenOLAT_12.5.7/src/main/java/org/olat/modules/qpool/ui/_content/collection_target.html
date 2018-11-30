@@ -1,0 +1,10 @@
+<ul class="o_dropdown list-unstyled">
+	<li>$r.render("create.list")</li>
+	<li>$r.render("add.to.list")</li>
+#if($r.available("rename.collection"))
+	<li>$r.render("rename.collection")</li>
+#end
+#if($r.available("delete.collection"))
+	<li>$r.render("delete.collection")</li>
+#end
+</ul>

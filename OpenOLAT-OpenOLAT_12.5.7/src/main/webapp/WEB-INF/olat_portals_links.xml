@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinksPortlet xmlns="https://bildungsportal.sachsen.de/portlets/LinksPortlet" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://bildungsportal.sachsen.de/portlets/LinksPortlet olat_portals_links.xsd ">
+<!-- see olat_portals_links.xsd for all configuration issues -->
+  <University name="*"><!-- all users -->
+    <Link>
+      <Title>Google</Title>
+      <URL>http://www.google.com</URL>
+      <Target>blank</Target>
+      <Language>*</Language>
+      <Description>Sehr gute Suchmaschine</Description>
+    </Link>
+    <Link>
+      <Title>google</Title>
+      <URL>http://www.google.com</URL>
+      <Target>blank</Target>
+      <Language>en</Language>
+      <Description>Very good search engine</Description>
+    </Link>
+  </University>
+  <University name="-"><!-- only guests -->
+    <Link>
+      <Title>OpenOLAT</Title>
+      <URL>http://www.openolat.org</URL>
+      <Target>blank</Target>
+      <Language>de</Language>
+      <Description>Projektseite zu OpenOLAT</Description>
+    </Link>
+  </University>
+</LinksPortlet>

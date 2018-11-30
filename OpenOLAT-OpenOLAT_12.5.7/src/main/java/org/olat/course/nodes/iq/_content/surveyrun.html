@@ -1,0 +1,47 @@
+#if ($hasDisc)
+	<div class="panel panel-default o_disclaimer">
+	  	<div class="panel-heading">
+	  		<h4 class="panel-title">$r.translate("disclaimer")</h4>
+	  	</div>
+		<div class="panel-body">
+		$r.render("disc")
+  		</div>
+	</div>
+#end
+	
+#if ($attempts == 0)
+	#if ($infobox)			
+	<div class="o_statusinfo">
+		<p>
+			$r.translate("Intro.surv")	
+		</p>
+		<p>	
+			$r.translate("info.survey")
+		</p>
+	</div>
+	#end
+			
+	<div class="o_button_group">
+		$r.render("start")
+	</div>	
+#else
+	<div class="o_statusinfo">
+		$r.translate("info.survey.alreadydone")
+	</div>
+#end
+
+#if ($changelogconfig)			
+	#if($changeLog)
+	<div class="o_box">
+		#o_togglebox_start("o_course_run_changelog" $r.translate("changelog.title"))
+		<pre class="small">
+$changeLog
+		</pre>
+		#o_togglebox_end()
+	</div>
+	#end
+#end	
+	
+#if ($r.available("highScore"))
+	$r.render("highScore")
+#end

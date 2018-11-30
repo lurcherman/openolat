@@ -1,0 +1,39 @@
+## for odd reason bootstrap calls horizontal inline...
+<fieldset #if(!$!f.domReplacementWrapperRequired) id="$r.getCId()" #end class="o_form form-inline #if ($off_css_class) $off_css_class #end $f.getContainerCssClass()" role="form">
+#if ($off_title) 
+	<legend>
+	#if ($off_chelp_url) 
+		$r.contextHelpWithWrapper("$off_chelp_url") 
+	#end
+	#if ($off_icon)
+		<i class="$off_icon"> </i>
+	#end
+	$!off_title
+</legend> 
+#end
+#if ($off_desc) <div class="o_desc">$off_desc</div> #end
+#if ($off_warn) <div class="o_warning">$off_warn</div> #end
+#if ($off_info) <div class="o_info">$off_info</div> #end
+
+#foreach ($item in $formitemnames)
+	#if ($f.isVisible($item))
+	<div class="form-group $f.getElementCssClass($item) #if($f.hasError($item)) has-feedback has-error #end">
+		#if ($f.hasLabel($item))
+			$r.render("${item}_LABEL", "$f.getItemId($item)")
+		#end
+			$r.render(${item}, "form")
+			#if($f.hasError($item))
+				<span class="o_icon o_icon_error form-control-feedback"></span>
+			#end
+		#if($f.hasExample($item))
+			<div class="o_form_example help-block">
+				$r.render("${item}_EXAMPLE")
+			</div>
+		#end
+		#if($f.hasError($item))
+			$r.render("${item}_ERROR")
+		#end
+	</div>
+	#end
+#end
+</fieldset>

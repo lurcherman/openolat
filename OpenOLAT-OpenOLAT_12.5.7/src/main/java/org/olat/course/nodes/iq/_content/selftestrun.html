@@ -1,0 +1,142 @@
+#if ($enableScoreInfo)
+	#if ($hasResults)
+		<div class="panel panel-default o_personal">
+		  	<div class="panel-heading">
+	  			<h4 class="panel-title">$r.translate("personal.title")</h4>
+	  		</div>
+			<table class="table">
+			<tbody>
+				<tr class="o_attempts">
+					<th>$r.translate("attempts.yourattempts")</th>
+					<td>
+						$attempts
+					</td> 
+				</tr> 
+				<tr class="o_score">
+					<th>$r.translate("score.yourscore")</th>
+					<td>
+						$score
+					</td> 
+				</tr> 
+				<tr class="o_state #if ($hasPassedValue && $passed) o_passed #elseif($hasPassedValue && !$passed) o_failed #else o_unknown #end">
+					<th>$r.translate("passed.yourpassed")</th>
+					<td>
+					#if($hasPassedValue && $passed)	
+						<i class="o_icon o_icon_passed"></i> 
+						$r.translate("passed.yes")
+					#elseif($hasPassedValue && !$passed)		
+						<i class="o_icon o_icon_failed"></i> 
+						$r.translate("passed.no")
+					#else
+						$r.translateWithPackage("org.olat.course.nodes.st", "passed.noinfo")
+					#end
+					</td>
+				</tr>
+			</tbody>
+			</table>				
+		</div>
+	
+		#if ($comment)		
+		<div class="panel panel-default o_comment">
+		  	<div class="panel-heading" data-toggle="collapse" data-target="#collapseComment">
+	  			<h4 class="panel-title">
+	  				<i id="collapseCommentsToggler" class="o_icon o_icon-fw o_icon_close_togglebox"> </i>
+	  				$r.translate("comment.yourcomment")
+	  			</h4>
+	  		</div>
+		<div id="collapseComment" class="panel-collapse collapse in"><div class="panel-body">
+				$comment
+	  		</div>
+		</div></div>
+		<script type="text/javascript">
+			/* <![CDATA[ */
+				jQuery('#collapseComment').on('hide.bs.collapse', function () {
+						jQuery('#collapseCommentsToggler').removeClass('o_icon_close_togglebox').addClass('o_icon_open_togglebox');
+				})
+				jQuery('#collapseComment').on('show.bs.collapse', function () {
+						jQuery('#collapseCommentsToggler').removeClass('o_icon_open_togglebox').addClass('o_icon_close_togglebox');
+				})
+			/* ]]> */
+		</script>
+		#end
+
+	#else
+		<div class="o_no_scoreinfo">
+			$r.translate("score.noscoreinfoyet")
+		</div>
+	#end
+#end
+	
+#if($showResultsOnHomePage && $attempts >0)	
+	<div class="panel panel-default o_results">
+	  	<div class="panel-heading" data-toggle="collapse" data-target="#collapseResults">
+	  		<h4 class="panel-title">
+	  			<i id="collapseResultsToggler" class="o_icon o_icon-fw o_icon_close_togglebox"> </i>	  	
+	  			$r.translate("showResults.title")
+	  		</h4>
+	  	</div>
+		<div id="collapseResults" class="panel-collapse collapse in"><div class="panel-body">
+		  	#if($showResultsVisible)
+				#if ($showResults)
+					$r.render("command.hideResults")					  				  
+				#else
+					$r.render("command.showResults")
+				#end				
+		       	#if ($showResults)
+					#if ($displayreporting)
+						<br />
+						<h4>$r.translate("showResults.detailed")</h4>
+						<div id="o_qti_results" class="small">
+							$!resreporting
+						</div>
+				    #end
+		       	#end
+		  	#else
+			  	$visibilityPeriod
+			#end
+  		</div></div>
+	</div>
+	<script type="text/javascript">
+		/* <![CDATA[ */
+			jQuery('#collapseResults').on('hide.bs.collapse', function () {
+					jQuery('#collapseResultsToggler').removeClass('o_icon_close_togglebox').addClass('o_icon_open_togglebox');
+			})
+			jQuery('#collapseResults').on('show.bs.collapse', function () {
+					jQuery('#collapseResultsToggler').removeClass('o_icon_open_togglebox').addClass('o_icon_close_togglebox');
+			})
+		/* ]]> */
+	</script>
+#end
+
+#if ($hasDisc)
+<div class="panel panel-default o_disclaimer">
+  	<div class="panel-heading">$r.translate("disclaimer")</div>
+	<div class="panel-body">
+	$r.render("disc")
+ 		</div>
+</div>
+#end
+#if ($infobox)		
+	<div class="o_statusinfo">
+		<p>
+			$r.translate("Intro.self")
+		</p>
+		<p>	
+			$r.translate("info.selfassessment")
+		</p>
+	</div>
+#end		
+<div class="o_button_group">
+	$r.render("start")
+</div>	
+#if ($changelogconfig)		
+	#if($changeLog)
+	<div class="o_box">
+		#o_togglebox_start("o_course_run_changelog" $r.translate("changelog.title"))
+	    <pre class="small">	
+$changeLog
+		</pre>
+		#o_togglebox_end()
+	</div>
+	#end
+#end

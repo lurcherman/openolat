@@ -1,0 +1,179 @@
+<div class="o_translation_edit">
+	<div class="o_form form-horizontal container-fluid">
+		<div class="form-group clearfix row">
+			<div class="col-sm-3"><label class="control-label"><i class="o_icon o_icon_translation_package"> </i> $r.translate("generic.bundle")</label></div>
+			<div class="col-sm-9">$r.render("bundlesSelection")</div>
+		</div>
+		<div class="form-group clearfix row">
+			<div class="col-sm-9 col-sm-offset-3">$r.render("progressBarBundle")</div>
+		</div>
+		<div class="form-group clearfix row">
+			<div class="col-sm-3"><label class="control-label"><i class="o_icon o_icon_translation_item"> </i> $r.translate("generic.key")</label></div>
+			<div class="col-sm-9">$r.render("keysSelection")</div>
+		</div>
+		<div class="form-group clearfix row">
+			<div class="col-sm-3 col-sm-offset-3">$r.render("progressBarKey")</div>
+		</div>
+	</div>
+	<div class="o_translation_edit_body">
+		<p class="o_info">$r.translate("edit.${customizingPrefix}intro")</p>	
+		
+		<div class="o_translation_edit_reference">
+			<div class="o_translation_refKey pull-right" style="display: none" onclick="this.style.display='none'">
+				<code></code> = <span></span>
+			</div>
+			<h5><i class="o_flag o_flag_$referenceLanguageKey"> </i> $r.translate("generic.${customizingPrefix}lang.reference"): $referenceLanguage</h5>
+			$r.render("referenceArea")
+		</div>
+		#if ($r.available("annotationAddLink"))
+			#if (!$customizingMode)
+			<div class="o_button_group">
+				$r.render("annotationAddLink")
+			</div>
+			#end
+		#else
+		<div class="o_translation_edit_annotation" title="$r.translateInAttribute("edit.annotation.hover")" >
+			<h5><i class="o_icon o_icon_info"> </i> $r.translate("generic.annotation")</h5>
+			$r.render("annotationArea")
+		</div>
+		#end
+		<div class="o_translation_edit_compare">			
+			#if ($compareSwitchEnabled)
+			<div class="o_translation_refKey pull-right o_icon" style="display: none" onclick="this.style.display='none'">
+				<code></code> = <span></span>
+			</div>
+			#end
+			<div class="form-inline">
+				<div class="form-group">
+					<label><i class="o_flag o_flag_$compareLanguageKey"> </i> $r.translate("generic.lang.compare"):</label>
+				</div>
+				$r.render("compareLangSelection")
+				$r.render("compareSwitch")
+			</div>
+			$r.render("compareArea")
+		</div>
+		<div class="o_translation_edit_target" title="$r.translateInAttribute("edit.${customizingPrefix}target.hover")">
+			<div class="o_translation_refKey" style="display: none" onclick="this.style.display='none'">
+				<code></code> = <span></span>
+			</div>
+			<h5><i class="o_flag o_flag_$targetLanguageKey"> </i> $r.translate("generic.${customizingPrefix}lang.target"): $targetLanguage</h5>
+			$r.render("targetArea")
+			#if($f.hasError("targetArea"))
+				<div class="clearfix">$r.render("targetArea_ERROR")</div>
+			#end
+		</div>		
+		<div class="o_button_group">
+		#if ($hasPrevious) 
+			$r.render("previousLink") 
+		#end
+			<a href="#top" onclick="copyFromReference();" class="btn btn-default"><i class="o_icon o_icon_copy"> </i> $r.translate('copy')</a>
+			$r.render("saveLink")
+		#if ($hasNext) 
+			$r.render("saveNextLink")
+			$r.render("nextLink") 
+		#end
+		</div>
+	</div>	
+</div>
+
+<script type="text/javascript">
+/* <![CDATA[ */ 
+
+//FIXME:FG:6.2: Implement Java way of setting flexi form link buttons dirty on change
+function o_SetTranslationSaveLinksDirty() {
+	var save=jQuery("#$f.getItemId("saveLink")"); 
+	if (!save.hasClass('o_button_dirty')) {
+		save.addClass('o_button_dirty'); 
+		#if ($hasNext) 
+			jQuery("#$f.getItemId("saveNextLink")").addClass('o_button_dirty');
+		#end
+	}
+	
+}
+jQuery("#$f.getItemId("targetArea")").on("keyup", o_SetTranslationSaveLinksDirty);    
+
+## Code to check for user click on key references within the textarea fields
+
+## Method to check the clicked text within the textarea of the given wrapper 
+## element. The method searches for the clicked word boundaries of type
+## $org.olat:my.key ; $:my.key ; ${org.olat:my.key}
+## and then uses the javascript translator to lookup this reference on the server 
+## for the given language code
+function checkClick(wrapperName, langCode) {
+	## Get content from text area within this wrapper
+	var area = jQuery('div.' + wrapperName + ' textarea')[0];
+	var cursorPos = area.selectionStart;
+	var content = area.value;
+	## Find the start position of the next i18n reference supported style:
+	var counter = 0;
+	while (content.indexOf("$") != -1 && counter < 10) {
+		var startPos = content.search("\\$\\{?([\\w\\.\\-]*):([\\w\\.\\-]*[\\w\\-])\\}?");
+		var endPos = startPos + content.substring(startPos).search("[^\\{\\w\\.\\-:\\}]|$");
+		if (startPos <= cursorPos && endPos >= cursorPos) {
+			var reference = content.substring(startPos, endPos);
+			## remove {wrapper} brakes
+			if (reference.match("^\{")) reference = reference.substring(1, reference.length-1);			
+			var bundleName = "";
+			var key = "";
+			if (reference.match("^:")) {
+				## of type ':my.key' - get current bundle from bundles selction dropdown
+				key = reference.substring(1, reference.length);	
+				var select = jQuery("#bundlesSelectionContainer select")[0];
+				bundleName = select.options[select.selectedIndex].value;
+			} else {
+				## of type 'org.olat.core:my.key' - parse bundle from reference
+				var elements = reference.split(":");
+				bundleName = elements[0];
+				key = elements[1];
+			}
+			
+			var trans = jQuery(document).ooTranslator().getTranslator(langCode, bundleName);
+			if (trans) {
+				var translated = trans.translate(key);
+				if (translated != reference) {
+					## set new key and value, make element visible
+					jQuery('div.' + wrapperName + ' div.o_translation_refKey code').html(reference);
+					jQuery('div.' + wrapperName + ' div.o_translation_refKey span').html(translated);
+					jQuery('div.' + wrapperName + ' div.o_translation_refKey').css('display: inline');
+				}
+			}
+			break;
+		}
+		## remove parsed content from string
+		content = content.substring(endPos);	
+		cursorPos -= endPos;
+		## increment emergency stop counter - don't lookup more than 10 keys, probably a programming error
+		counter++;
+	}	
+}
+	
+## Method to copy the text from the reference language to the target language
+function copyFromReference() {
+	var refVal = jQuery('.o_translation_edit_reference .o_form_element_disabled').text();
+	jQuery('.o_translation_edit_target textarea').val(refVal);	
+}
+	
+## Initialize observers
+jQuery(function() {
+	jQuery('div.o_translation_edit_reference textarea').each(function(index, el) {
+		jQuery(el).on('click', function() {
+			checkClick('o_translation_edit_reference','${referenceLanguageKey}');
+		});
+	});
+
+#if ($compareSwitchEnabled)
+	jQuery('div.o_translation_edit_compare textarea').each(function(index, el) {
+		jQuery(el).on('click', function() {
+			checkClick('o_translation_edit_compare','${compareLanguageKey}');
+		});
+	});
+#end
+	jQuery('div.o_translation_edit_target textarea').each(function(index, el) { 
+		jQuery(el).on('click', function(){
+			checkClick('o_translation_edit_target','${targetLanguageKey}');
+		});
+		jQuery(el).focus();
+	});
+});
+/* ]]> */
+</script>

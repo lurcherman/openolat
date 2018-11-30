@@ -1,0 +1,27 @@
+## modal dialog consists of two elements:
+## 1) the shim: an invisible iframe so solve the problem ofn ative window elements shinging through 
+##    from lower layers 
+## 2) the modal area: this is the place where the modal content will be. Note that this are
+##    has no visual effects like a border. It is just a container where the various modal elements
+##    are placed.
+
+## First tell Ext on which z-index the next Ext-window can be opened so that is is on top of 
+## this modal dialog
+<script type="text/javascript">
+/* <![CDATA[ */
+   o_info.zseed = $zindexextwindows;
+/* ]]> */
+</script>
+
+## 1) 
+## some browser elements (e.g. pulldown lists) are displayed through the 
+## overlay. this invisible iframe does the trick for IE
+## It's important to display the ifram only for IE browsers. Firefox has a bug
+## that looses the curser in form fields if this iframe is present.
+## See http://www.activewidgets.com/javascript.forum.8495.4/blinking-cursor-lost-in-text.html
+<!--[if IE]>
+	<iframe class="o_modal_iebug" src="$r.staticLink("empty.html")" style="position:absolute; left:0; top:0; width:100%; height:100%; border:none; z-index: $zindexshim; opacity:0; filter: alpha(opacity:0);" ></iframe>
+<![endif]-->
+## 2)
+$r.render("guimsgplace")
+$r.render("cont")

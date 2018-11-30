@@ -1,0 +1,20 @@
+<fieldset>
+	<legend>$r.translate("tab.layout.title")</legend>
+	<strong>$r.translate("form.layout.cssfile")</strong>:
+	#if ($hasCustomCourseCSS)
+		<p>
+			$cssFileRef
+		</p>
+		<div class="o_button_group">
+			$r.render("form.layout.changecustomcss")
+			$r.render("form.layout.choosesystemcss")
+		</div>
+	#else
+		<p>
+			$r.translate("$cssFileRef")
+		</p>
+		<div class="o_button_group">
+			$r.render("form.layout.choosecustomcss")
+		</div>
+	#end
+</fieldset>

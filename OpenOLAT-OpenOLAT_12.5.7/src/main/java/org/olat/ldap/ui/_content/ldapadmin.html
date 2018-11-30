@@ -1,0 +1,36 @@
+<h2>$r.translate("admin.title")</h2>
+<fieldset>
+	<legend>$r.translate("admin.deleteUser.title")</legend>
+	<div class="o_info">$r.translate("admin.deleteUser.intro")</div>
+	<div class="o_button_group">$r.render("delete.button.start")</div>
+</fieldset>
+<fieldset>
+	<legend>$r.translate("admin.synchronize.title")</legend>
+	<p>$r.translate("admin.synchronize.intro")</p>
+	<div class="o_info">
+		$r.translate("admin.synchronize.last"): 
+		#if ($lastSyncDate)
+			$lastSyncDate
+		#else
+			<i>$r.translate("admin.synchronize.last.unknown")</i>
+		#end</div>
+	<div class="o_button_group">
+		$r.render("sync.button.start")
+		#if ($r.available("one.user.sync.button.start"))
+			$r.render("one.user.sync.button.start")
+			#end
+	</div>
+</fieldset>
+#if($r.available("remove.fallback.auth"))
+<fieldset>
+	<legend>$r.translate("ldap.maintenance")</legend>
+	<div class="o_info">$r.translate("remove.fallback.auth.info")</div>
+	<div class="o_button_group">
+		$r.render("remove.fallback.auth")
+	</div>
+</fieldset>
+#end
+<fieldset>
+	<legend>$r.translate("admin.logview.title")</legend>
+	$r.render("logViewController")
+</fieldset>

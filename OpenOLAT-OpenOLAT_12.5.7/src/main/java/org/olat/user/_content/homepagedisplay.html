@@ -1,0 +1,63 @@
+<div class="o_visitingcard clearfix well"><div class="o_scrollblock">
+	<h2><i class="o_icon o_icon_visitingcard"> </i>$r.translate("menu.homepage") $userFullname</h2>
+#if ($deleted) 
+	<p class="o_warning">$r.translate("user.deleted")</p>
+#else 
+	<div class="o_visitingcard_content">
+		<div class="o_visitingcard_image o_block clearfix">	
+			<div class="pull-left">$r.render("image")</div>
+			#if($r.available("logo") && $r.visible("logo"))
+				<div class="pull-right">
+					<div class="o_visitingcard_logo">
+						<span class='o_image_vertical_center_helper'></span>
+						$r.render("logo")
+					</div>
+				</div>
+			#end
+		</div>
+		<table class="table table-condensed table-striped">
+			#if($r.available("im.link"))
+			<tr class="o_im_status">
+				<th>$r.translate("status")</th>
+				<td colspan="3"><div id="o_im_buddy">$r.render("im.link")</div></td>
+			</tr>			
+			#end
+	
+			#foreach($propertyHandler in $userPropertyHandlers )
+			<tr>
+				<th>$r.translate($propertyHandler.i18nFormElementLabelKey()) </th>
+				#if($propertyHandler.name == "userInterests" && $userSearchedInterestsHandler)
+					<td>$!propertyHandler.getUserPropertyAsHTML($user, $locale)</td>
+					<th>$r.translate($userSearchedInterestsHandler.i18nFormElementLabelKey())</th>
+					<td>$!userSearchedInterestsHandler.getUserPropertyAsHTML($user, $locale)</td>
+				#else
+					<td colspan="3">$!propertyHandler.getUserPropertyAsHTML($user, $locale)</td>
+				#end
+			</tr>
+			#end		
+		#if( $homepageConfig.getTextAboutMe() && ($homepageConfig.getTextAboutMe() != "") )
+		<tr valign="top" class="o_user_aboutme">
+			<th>$r.translate("form.text")</th>
+			<td colspan="3">$!r.formatLatexFormulas($homepageConfig.getTextAboutMe())</td>
+		</tr>		
+		#end
+		</table>
+	</div>
+#end
+</div></div>
+
+#if (!$deleted) 
+<div class="o_visitingcard_link o_extlink clearfix o_block_large_bottom">
+	<h5>$r.translate("extlink")</h5>
+	<div class="o_copy_code o_nowrap">
+		<a href="javascript:;" id="o_extlink" data-original-title="" title=""><i class="o_icon o_icon-lg o_icon-fw o_icon_qrcode"> </i></a><input type="text" value="$extLink" onclick="this.select()"/>
+		<script type="text/javascript">
+		/* <![CDATA[ */
+			jQuery(function() {
+				o_QRCodePopup('o_extlink', '$extLink', 'right');
+			});
+		/* ]]> */
+		</script>
+	</div>
+</div>
+#end

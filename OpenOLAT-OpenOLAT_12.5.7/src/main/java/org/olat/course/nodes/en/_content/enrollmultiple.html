@@ -1,0 +1,50 @@
+  	#if($isEnrolledView || $isInWaitingList)
+	<div class="o_course_run_groupinfo">	
+			#if($isEnrolledView)
+			<div class="o_block">
+				<h5>$r.translate("enrolled.group.name"):</h5>
+				<ul class="list-inline">
+				#foreach( $group in $groupNames )
+		  			  <li>
+		  			  	<i class='o_icon o_icon-fw o_icon_group'>&nbsp;</i>  $group
+		  			  </li>
+				#end
+				</ul>
+			</div>
+			#end
+			#if( $isInWaitingList )
+			<div class="o_block">
+				<h5>$r.translate("enrolled.waitinglist.name"):</h5>
+				<ul class="list-inline">
+				#foreach( $wlGroup in $waitingListNames )
+					<li>
+	  			  		<i class='o_icon o_icon-fw o_icon_group'>&nbsp;</i>  $wlGroup
+	  			  	</li>
+				#end
+				</ul>
+			</div>
+			#end
+	</div>
+	#end
+
+	#if($multiEnroll )
+	<div class="o_note">
+		$multipleHint
+	</div>
+	#end
+	
+	<div class="o_course_run_statusinfo">	
+	#if($isEnrolledView)
+		<p>
+		#if($isWaitingList)
+		  $r.translate("waitinglist.explain")
+		#else
+		  $r.translate("enrolled.explain")
+		#end		
+		</p>		
+	#else
+		$r.translate("enroll.explain")
+	#end
+	</div>
+	
+	$r.render("grouplisttable")

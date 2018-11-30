@@ -1,0 +1,35 @@
+<div class="container-fluid">
+## for odd reason bootstrap calls vertical horizontal
+<fieldset #if(!$!f.domReplacementWrapperRequired) id="$r.getCId()" #end class="o_form form-horizontal #if ($off_css_class) $off_css_class #end $f.getContainerCssClass()" role="form">
+#if ($off_title) 
+	<legend>
+		#if ($off_chelp_url) 
+			$r.contextHelpWithWrapper("$off_chelp_url") 
+		#end
+		$!off_title
+	</legend> 
+#end 
+
+#if ($off_desc || $off_warn || $off_info)
+	<div class="row"><div class="col-sm-offset-3 col-sm-9">
+		#if ($off_desc) <div class="o_desc">$off_desc</div> #end
+		#if ($off_warn) <div class="o_warning">$off_warn</div> #end
+		#if ($off_info) <div class="o_info">$off_info</div> #end
+	</div></div>
+#end
+
+	$r.render("file_upload")
+	#if($f.hasError("file_upload"))
+		<div class="col-sm-offset-6 col-sm-6">
+			$r.render("file_upload_ERROR")
+		</div>
+	#end
+#if($r.available("resize_image_wrapper"))
+	$r.render("resize_image_wrapper")
+#end
+#if ($showMetadata)
+	$r.render("metadata")
+#end
+	$r.render("buttons")
+</fieldset>
+</div>

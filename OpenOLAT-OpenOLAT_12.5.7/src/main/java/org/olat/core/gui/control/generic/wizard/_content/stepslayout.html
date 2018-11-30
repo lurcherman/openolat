@@ -1,0 +1,48 @@
+<div class="o_wizard modal show in"><div class="modal-backdrop in"></div><div class="modal-dialog modal-lg o_modal_fullwidth #if($elementCssClass) $elementCssClass #end"><div class="modal-content">
+	<div class="modal-header">
+		<div class="pull-right">$r.render("closeIcon")</div>
+		#if($helpPage)
+			$r.contextHelpWithWrapper("$helpPage")
+		#end
+		<h4>$wizardTitle</h4>
+	</div>
+	<div class="modal-body">
+		<div class="wizard clearfix">
+			<ul class="steps">
+			#foreach($item in $stepLinks)
+				<li class="	#if($currentStepPos == $velocityCount) active #end	#if(!${item.isEnabled()}) o_enabled #end ">
+					$r.render(${item})<span class="chevron"></span>
+				</li>
+			#end
+			</ul>
+		</div>	
+			
+		<!-- wizard step content -->
+		<div class="o_wizard_steps_current">
+			<div class="o_wizard_steps_current_inner">
+				<div class="o_wizard_steps_current_content clearfix">
+					<div class="o_floatscrollbox">
+						$r.render("FFO_CURRENTSTEPPAGE")
+					</div>
+				</div>
+				<div style="clear:both; height: 1px">&nbsp;</div>	   	
+			</div>
+		</div>
+	</div>
+	<!-- bottom navigation -->
+	<div class="modal-footer">
+		$r.render("back")
+		$r.render("next")
+		$r.render("finish")
+		$r.render("cancel")
+	</div>
+</div></div></div>
+## always show top of modal dialog when on long pages
+<script type="text/javascript">
+/* <![CDATA[ */	
+jQuery(function() {
+	jQuery('.o_wizard.modal.show.in > .modal-backdrop')
+		.css('height', 0).css('height', jQuery('.o_wizard.modal.show.in')[0].scrollHeight);
+});
+/* ]]> */
+</script>

@@ -1,0 +1,31 @@
+#if ($showBack)
+	$r.render("backLink")
+#end
+
+#if($showGroup)
+	<h3>$r.translate("userchoose.withGroups.title", ["$groupName"])</h3>
+#else
+	<h3>$r.translate("userchoose.title")</h3>
+#end
+
+#if ($showFilterButton)
+	<div class="pull-right">
+		#if ($isFiltering)
+			$r.render("cmd.showAllCourseNodes")
+		#else
+		    $r.render("cmd.filterCourseNodes")
+		#end
+	</div>
+#end
+
+$r.render("userlisttable")
+
+#if ($toolCmpNames)
+	<div class="o_button_group">
+	#foreach($toolCmpName in $toolCmpNames)
+		$r.render($toolCmpName)
+	#end
+	</div>
+#end
+
+ 

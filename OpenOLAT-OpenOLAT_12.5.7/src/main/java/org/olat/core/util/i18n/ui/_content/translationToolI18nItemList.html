@@ -1,0 +1,35 @@
+<div class="o_translation_list">
+##	<h2>$r.translate("list.title")</h2>
+	<p>$r.translate("list.found.entries", ["$keysCount","$bundlesCount"])</p>
+	<p class="o_info">$r.translate("list.${customizingPrefix}intro")</p>
+#if ($i18nItems && $i18nItems.size() > 0)
+	<div class="o_button_group">
+		$r.render("allTranslateButtonTop")
+	</div>	
+	#set($currentBundle="")
+	#foreach ($item in $i18nItems)
+		#if ($currentBundle != $item.getBundleName())
+			#if ($velocityCount != 1)
+	</div></div></div>
+			#end
+	<div class="o_translation_list_package">
+			#set ($currentBundle=$item.getBundleName())
+			
+			<div class="clearfix">
+				<div class="pull-right">$r.render("translateBundle_$currentBundle")</div>
+				<div class="o_tooglebox_wrapper">
+					<a href="#" data-toggle="collapse" data-target="#$o_translation_item_$velocityCount"  class="o_opener" onclick="jQuery(this).toggleClass('o_in')">
+						<i class="o_icon o_icon_translation_package"> </i> $r.translate("generic.bundle"): $currentBundle
+					</a>
+				</div>
+			</div>
+			<div id="$o_translation_item_$velocityCount" class="collapse"><div class="o_togglebox_content">
+		#end
+		<div><i class="o_icon o_icon_translation_item"> </i> $item.getKey()</div>
+	#end
+	</div></div></div>	
+	<div class="o_button_group">
+		$r.render("allTranslateButtonBottom")
+	</div>	
+#end
+</div>

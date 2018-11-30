@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+  http://www.springframework.org/schema/beans 
+  http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="courseLayoutHelper" class="org.olat.course.config.ui.courselayout.CourseLayoutHelper" depends-on="courseModule">
+		<property name="logoMaxHeight" value="100"/>
+		<property name="logoMaxWidth" value="300"/>
+		<property name="imageHelperToUse" ref="imageHelper"/>
+		<!-- OLAT will add course-layouts from the currently used OLAT-theme -->
+		<property name="layoutBlacklist" value="${layout.coursetemplates.blacklist}" />
+	</bean> 
+
+	<bean id="courseConfigManager" class="org.olat.course.config.ui.courselayout.CustomConfigManager" depends-on="courseModule">
+		<property name="availableLayoutElements">
+			<list>
+				<bean class="org.olat.course.config.ui.courselayout.elements.TextLE" />
+				<bean class="org.olat.course.config.ui.courselayout.elements.HeaderLE" />
+				<bean class="org.olat.course.config.ui.courselayout.elements.LinkLE" />
+				<bean class="org.olat.course.config.ui.courselayout.elements.MenuLE" />
+				<bean class="org.olat.course.config.ui.courselayout.elements.ToolboxLE" />		
+			</list>
+		</property>
+		<property name="availableLayoutAttributes">
+			<list>
+				<bean class="org.olat.course.config.ui.courselayout.attribs.FontLA"/>
+				<bean class="org.olat.course.config.ui.courselayout.attribs.SizeLA"/>
+				<bean class="org.olat.course.config.ui.courselayout.attribs.ColorLA"/>
+				<bean class="org.olat.course.config.ui.courselayout.attribs.BackgroundColorLA"/>
+				<!-- keep this at the end, works only after other attributes are initialized! -->
+				<bean class="org.olat.course.config.ui.courselayout.attribs.PreviewLA"/>
+			</list>
+		</property>
+	</bean>
+
+</beans>

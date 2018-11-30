@@ -1,0 +1,24 @@
+<div class="o_ll_container">
+	<ul class="list-unstyled">
+	#foreach($link in $linkList)
+		<li class="o_block">
+			<h5>
+				<a href="#if($link.intern) $mapperBaseUrl$link.getTarget() #else $link.getTarget() #end" target="$link.getHtmlTarget()" class="o_desc">
+					$r.escapeHtml($link.getDescription())
+					<small>
+						#if($link.intern) $mapperBaseUrl$link.getTarget() #else $link.getTarget() #end
+						#if($link.getHtmlTarget() == "_blank")
+							<i class="o_icon o_icon_external_link"> </i>
+						#end
+					</small>
+				</a>
+			</h5>
+			#if($showLinkComments)
+			<div class="o_comment">
+				$r.xssScan($link.getComment())
+			</div>
+			#end
+		</li>
+	#end
+	</ul>
+</div>

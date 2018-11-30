@@ -1,0 +1,9 @@
+<h2><i  class="o_icon o_icon_group"> </i> $r.translate("menu.group.admin")</h4>
+$r.render("searchPanel")
+$r.render("groupList")
+#if($r.available("create.group"))
+	<div class="clearfix">
+		<div class="o_info">$r.translate("create.group.description")</div>
+		$r.render("create.group")
+	</div>
+#end

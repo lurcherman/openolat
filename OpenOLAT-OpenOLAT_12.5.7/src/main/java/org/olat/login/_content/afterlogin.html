@@ -1,0 +1,11 @@
+#if ($ctrlCount && $ctrlCount > 1)
+<div class="clearfix">
+	$r.render("wizard")
+</div>
+#end
+#if ($introPkg && $introKey)
+	<div class="o_info">
+		$r.translateWithPackage($introPkg, $introKey)
+	</div>
+#end
+$r.render("actualPanel")

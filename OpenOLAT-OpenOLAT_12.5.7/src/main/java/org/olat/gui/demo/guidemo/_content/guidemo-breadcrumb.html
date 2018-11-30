@@ -1,0 +1,14 @@
+<p>
+Bla, bla, some content of a workflow here. Open a subworkflow that uses the whole content without loosing the user context... Open another page... This one is on level <b>$level</b>.
+</p>
+<p />
+$r.render("GuiDemoBreadCrumbController.button.add")
+
+#if ($r.available("GuiDemoBreadCrumbController.button.remove"))
+	<p>
+	Click link below to remove this crumb
+	<p>
+	<p />
+	$r.render("GuiDemoBreadCrumbController.button.remove")
+#end
+

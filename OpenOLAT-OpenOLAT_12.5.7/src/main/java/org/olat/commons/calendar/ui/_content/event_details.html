@@ -1,0 +1,39 @@
+<div class="o_cal_wv_event_tooltip_content">
+	<h5>$r.escapeHtml($subject)</h5>
+	
+	<div class="o_cal_date text-muted">
+		<i class="o_icon o_icon-fw o_icon_calendar">&nbsp;</i>
+		$date
+	</div>
+	#if($time && $time != "")
+	<div class="o_cal_time text-muted">
+		<i class="o_icon o_icon-fw o_icon_time">&nbsp;</i>
+		$time
+	</div>
+	#end
+	#if($location && !${location.isEmpty()})
+	<div class="o_cal_location text-muted">
+		<i class="o_icon o_icon-fw o_icon_home" title="$r.translateInAttribute("cal.form.location")">&nbsp;</i>
+		$r.escapeHtml($location)
+	</div>
+	#end
+	#if($description && !${description.isEmpty()})
+	<div class="o_cal_description">
+		$r.xssScan($description)
+	</div>
+	#end
+	<div class="o_cal_links">
+	#foreach($link in $links)
+		#if($link.intern)
+			$r.render(${link.getLink().getComponentName()})
+		#else
+			<a href="$link.uri" title="$link.title" class="$link.cssClass" target="_blank">$r.escapeHtml($link.displayName)</a>
+		#end
+	#end
+	</div>
+	#if($r.available("edit"))
+		<div class="o_cal_tooltip_buttons">
+			$r.render("edit")
+		</div>
+	#end
+</div>

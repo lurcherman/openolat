@@ -1,0 +1,31 @@
+#if ($isRegisteredWeb)
+<h4 class="o_note">$r.translate("registration.title.registered")</h4>
+#elseif ($isRegisteredStatistics)
+<h4 class="o_important">$r.translate("registration.title.partialregistered")</h4>
+#else 
+<h4 class="o_warning">$r.translate("registration.title.notregistered")</h4>
+#end
+
+<div class="o_info">
+	<a href='http://www.openolat.org' target='_blank' class="pull-right" style="margin: 10px;">
+		<img src='$r.staticLink("images/openolat/olat_logo2_72_ohne.png")' alt='OpenOLAT' />
+	</a>	
+	<p>$r.translate("registration.statistics")</p>
+	<p>$r.translate("registration.sustainability")</p>
+	<p>$r.translate("registration.website")</p>
+	<p>$r.translate("registration.thanks", "<a href='http://www.openolat.org' target='_blank'><i class='o_icon o_icon_link_extern'> </i> www.openolat.org</a>")</p>
+</div>
+
+$r.render("settings")
+
+<div class="panel panel-default">
+	<div class="panel-heading">$r.translate("registration.summary")</div>
+	<table class="table table-striped"><tbody>
+		#foreach($property in $properties)
+		<tr>
+			<th>$property.key</th>
+			<td>$property.value</td>
+		</tr>
+		#end
+	</tbody></table>
+</div>

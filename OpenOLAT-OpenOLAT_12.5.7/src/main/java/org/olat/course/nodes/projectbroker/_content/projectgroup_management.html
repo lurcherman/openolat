@@ -1,0 +1,21 @@
+<fieldset>
+	<legend>$r.contextHelpWithWrapper("Other#_bb_themenvergabe_course_responsible")
+	$r.translate("projectgroup.projectleader.title")</legend>
+	$r.render("projectLeaderController")
+</fieldset>
+
+<fieldset>
+	<legend>$r.translate("projectgroup.member.title")</legend>
+	$r.render("projectMemberController")
+</fieldset>
+
+#if ($r.available("projectCandidatesController"))
+<fieldset>
+	<legend>
+	$r.translate("projectgroup.candidates.title")</legend>
+	#if ($isProjectCandidatesListEmpty == false)
+		<div>$r.translate("projectgroup.candidates.message")<br/><br/></div>
+	#end
+	$r.render("projectCandidatesController")
+</fieldset>
+#end

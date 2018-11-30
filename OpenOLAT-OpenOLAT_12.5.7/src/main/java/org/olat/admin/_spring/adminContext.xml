@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context.xsd">
+  
+	<context:component-scan base-package="org.olat.admin" />
+  
+	<import resource="classpath:/org/olat/admin/landingpages/_spring/landingPagesContext.xml"/>
+	<import resource="classpath:/org/olat/admin/sysinfo/_spring/sysinfoContext.xml"/>
+	<import resource="classpath:/org/olat/admin/user/tools/_spring/userToolsContext.xml"/>
+
+	<!-- Sites admin. panel -->
+	<bean class="org.olat.core.extensions.action.GenericActionExtension" init-method="initExtensionPoints">
+		<property name="order" value="8215" />
+		<property name="actionController">	
+			<bean class="org.olat.core.gui.control.creator.AutoCreator" scope="prototype">
+				<property name="className" value="org.olat.admin.site.ui.SitesAdminController"/>
+			</bean>
+		</property>
+		<property name="navigationKey" value="coursesites" />
+		<property name="i18nActionKey" value="admin.menu.title"/>
+		<property name="i18nDescriptionKey" value="admin.menu.title.alt"/>
+		<property name="translationPackage" value="org.olat.admin.site.ui"/>
+		<property name="parentTreeNodeIdentifier" value="sysAdminMenueNodeCustomizing" /> 
+		<property name="extensionPoints">
+			<list>	
+				<value>org.olat.admin.SystemAdminMainController</value>		
+			</list>
+		</property>
+	</bean>
+	
+	
+</beans>

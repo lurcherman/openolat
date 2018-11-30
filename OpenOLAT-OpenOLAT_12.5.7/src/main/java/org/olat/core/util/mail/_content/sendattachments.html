@@ -1,0 +1,8 @@
+<table>
+	#foreach ($attachment in $attachments)
+	<tr>
+		<td><i class="o_icon $attachment.cssClass"> </i> $attachment.filename</td>
+		<td>($attachment.sizeInMB MB)</td>
+	</tr>
+	#end
+</table>

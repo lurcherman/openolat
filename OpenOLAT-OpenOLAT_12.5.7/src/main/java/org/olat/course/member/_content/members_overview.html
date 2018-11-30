@@ -1,0 +1,36 @@
+#if($r.visible("override.member") || $r.visible("unoverride.member"))
+	<div class="o_warning">
+		$r.translate("override.member.hint")
+		<div class="o_button_group">
+		#if($r.visible("override.member"))
+			$r.render("override.member")
+		#elseif($r.visible("unoverride.member"))
+			$r.render("unoverride.member")
+		#end
+		</div>
+	</div>
+#end
+
+<div class="o_header_with_buttons">
+	<h4><i class="o_icon o_icon_group"> </i> $r.translate("menu.members")</h4>
+	<div class="o_button_group">
+		#if($r.available("addMembers") && $r.available("importMembers"))<div class="btn-group">#end
+		#if($r.available("addMembers"))
+			$r.render("addMembers")
+		#end
+		#if($r.available("importMembers"))
+			$r.render("importMembers")
+		#end
+		#if($r.available("addMembers") && $r.available("importMembers"))</div>#end
+		#if($r.available("dedupMembers"))
+			$r.render("dedupMembers")
+		#end
+	</div>
+</div>
+<div class="clearfix">
+	$r.render("segments")
+	
+	#if($r.available("membersCmp"))
+		$r.render("membersCmp")
+	#end
+</div>

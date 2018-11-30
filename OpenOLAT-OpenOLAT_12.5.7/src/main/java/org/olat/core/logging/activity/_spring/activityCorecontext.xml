@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+  http://www.springframework.org/schema/beans 
+  http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+
+<bean id="logModule" class="org.olat.core.logging.activity.LogModule" >
+	<constructor-arg index="0" value="${log.anonymous}" />
+	<constructor-arg index="1">
+		<list>
+			<value>eq</value>
+			<value>ge</value>
+			<value>gt</value>
+			<value>le</value>
+			<value>lt</value>
+		</list>
+	</constructor-arg>
+</bean>
+		
+
+
+               
+</beans>

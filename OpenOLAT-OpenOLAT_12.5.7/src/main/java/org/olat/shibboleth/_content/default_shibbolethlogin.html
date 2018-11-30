@@ -1,0 +1,14 @@
+<div class="o_login_form o_login_shibboleth">
+	<fieldset>
+		<legend>$r.translate("login.form")</legend>
+		<p>
+			$r.translate("default.shib.intro")
+		</p>		
+		
+		<div class="o_block">
+		#if ($r.available("shib.redirect"))
+			$r.render("shib.redirect")
+		#end
+		</div>
+	</fieldset>
+</div>

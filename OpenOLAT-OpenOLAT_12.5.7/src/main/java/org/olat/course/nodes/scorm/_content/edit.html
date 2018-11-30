@@ -1,0 +1,25 @@
+<fieldset class="o_form form-horizontal clearfix">
+	<legend>$r.contextHelpWithWrapper("Knowledge Transfer#_scorm_kursbaustein")
+	$r.translate("header")</legend>
+	
+	#if ($showPreviewButton)
+		<div class="form-group">
+			<label class="control-label col-sm-3">$r.translate("chosencp")</label>
+			<div class="col-sm-9"><p class="form-control-static">$r.render("command.preview")</p></div>
+		</div>
+		<div class="form-group">
+			<div class="col-sm-offset-3 col-sm-9">$r.render("command.changecp")</div>
+		</div>	
+	#else
+		<div class="form-group">
+			<label class="control-label col-sm-3">$r.translate("chosencp")</label>
+			<div class="col-sm-9"><p class="form-control-static">$chosencp</p></div>
+		</div>
+		<div class="form-group">
+			<div class="col-sm-offset-3 col-sm-9">$r.render("command.importcp")</div>
+		</div>	
+	#end	
+</fieldset>
+
+$r.render("scorevarform")
+

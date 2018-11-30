@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+  http://www.springframework.org/schema/beans 
+  http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/context 
+  http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<context:component-scan base-package="org.olat.ldap" />
+
+	<!-- Configuration for syncing user attributes during login or cron and batch sync -->	
+    <bean id="ldapSyncConfiguration" class="org.olat.ldap.LDAPSyncConfiguration">
+    	<property name="userManager" ref="userManager" />
+    	
+    	<property name="ldapUserCreatedTimestampAttribute" value="${ldap.ldapUserCreatedTimestampAttribute}"/>
+		<property name="ldapUserLastModifiedTimestampAttribute" value="${ldap.ldapUserLastModifiedTimestampAttribute}"/>
+		<property name="ldapUserPasswordAttribute" value="${ldap.ldapUserPassordAttribute}"/>	
+		<property name="ldapUserLoginAttribute" value="${ldap.login.attribute}" />
+
+		<property name="ldapUserFilter" value="${ldap.ldapUserFilter}"/>
+		<property name="ldapGroupFilter" value="${ldap.ldapGroupFilter}"/>
+		
+		<property name="ldapBases" >
+    		<list>
+    			<value>${ldap.ldapBases}</value> 
+    		</list>
+		</property>
+		<property name="ldapGroupBases" >
+    		<list>
+    			<value>${ldap.ldapGroupBases}</value> 
+    		</list>
+		</property>
+
+		<property name="groupAttribute" value="${ldap.user.groupAttribute}"/>
+		<property name="groupAttributeSeparator" value="${ldap.user.groupAttributeSeparator}"/>
+		<property name="coachedGroupAttribute" value="${ldap.user.coachedGroupAttribute}"/>
+		<property name="coachedGroupAttributeSeparator" value="${ldap.user.coachedGroupAttributeSeparator}"/>
+		<property name="coachRoleAttribute" value="${ldap.coachRoleAttribute}"/>
+		<property name="coachRoleValue" value="${ldap.coachRoleValue}"/>
+		
+		<!-- sync authors -->
+		<property name="authorsGroupBase" >
+    		<list>
+    			<value>${ldap.authorsGroupBases}</value> 
+    		</list>
+		</property>
+		<property name="authorRoleAttribute" value="${ldap.authorRoleAttribute}"/>
+		<property name="authorRoleValue" value="${ldap.authorRoleValue}"/>
+		
+		<!-- user managers -->
+		<property name="userManagersGroupBase" >
+    		<list>
+    			<value>${ldap.userManagersGroupBases}</value> 
+    		</list>
+		</property>
+		<property name="userManagerRoleAttribute" value="${ldap.userManagerRoleAttribute}"/>
+		<property name="userManagerRoleValue" value="${ldap.userManagerRoleValue}"/>
+		
+		<!-- group managers -->
+		<property name="groupManagersGroupBase" >
+    		<list>
+    			<value>${ldap.groupManagersGroupBases}</value> 
+    		</list>
+		</property>
+		<property name="groupManagerRoleAttribute" value="${ldap.groupManagerRoleAttribute}"/>
+		<property name="groupManagerRoleValue" value="${ldap.groupManagerRoleValue}"/>
+		
+		<!-- question pool managers -->
+		<property name="qpoolManagersGroupBase" >
+    		<list>
+    			<value>${ldap.qpoolManagersGroupBases}</value> 
+    		</list>
+		</property>
+		<property name="qpoolManagerRoleAttribute" value="${ldap.qpoolManagerRoleAttribute}"/>
+		<property name="qpoolManagerRoleValue" value="${ldap.qpoolManagerRoleValue}"/>
+		
+		<!-- learning resource managers -->
+		<property name="learningResourceManagersGroupBase" >
+    		<list>
+    			<value>${ldap.learningResourceManagersGroupBase}</value> 
+    		</list>
+		</property>
+		<property name="learningResourceManagerRoleAttribute" value="${ldap.learningResourceManagerRoleAttribute}"/>
+		<property name="learningResourceManagerRoleValue" value="${ldap.learningResourceManagerRoleValue}"/>
+
+		<!-- 
+			Define which user attributes are mandatory and how they are mapped to OLAT user properties. 
+			Note that OLAT requires at least the user properties userID and email. Those must be listed 
+			as mandatory. Others can be added as mandatory as well, but make sure the configuration here 
+			is consistent with the user properties configuration in the olat_userconfig.xml file. It is 
+			strongly recommended to add also lastName and firstName. See the file
+			olat3/webapp/WEB-INF/src/serviceconfig/org/olat/_spring/olat_userconfig.xml
+			to learn which OLAT user properties are available.
+
+			The maps require entries in the following syntax:			
+    		key: the LDAP attribute name
+    		value: the OLAT user property name
+		-->
+    	<property name="requestAttributes">
+    		<map>
+     			<entry key='${ldap.attributename.useridentifyer}' value='userID' />
+    			<entry key='${ldap.attributename.email}' value='email' /> 
+    		</map>
+    	</property>
+    	
+		<property name="userAttributeMap">
+    		<map>
+    			<!-- The name that should be used as OLAT loginname / username -->
+    			<entry key='${ldap.attributename.useridentifyer}' value='userID' />
+    			<entry key='${ldap.attributename.email}' value='email' />
+    			<entry key='${ldap.attributename.firstName}' value='firstName' />
+    			<entry key='${ldap.attributename.lastName}' value='lastName' />
+    			
+    			<!-- example for another mapping
+    			<entry key='description' value='orgUnit' />
+    			-->
+    			
+    			<!-- some generic usable mappings to allow config by properties -->
+    			<entry key='${ldap.attrib.gen.map.ldapkey1}' value='${ldap.attrib.gen.map.olatkey1}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey2}' value='${ldap.attrib.gen.map.olatkey2}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey3}' value='${ldap.attrib.gen.map.olatkey3}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey4}' value='${ldap.attrib.gen.map.olatkey4}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey5}' value='${ldap.attrib.gen.map.olatkey5}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey6}' value='${ldap.attrib.gen.map.olatkey6}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey7}' value='${ldap.attrib.gen.map.olatkey7}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey8}' value='${ldap.attrib.gen.map.olatkey8}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey9}' value='${ldap.attrib.gen.map.olatkey9}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey10}' value='${ldap.attrib.gen.map.olatkey10}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey11}' value='${ldap.attrib.gen.map.olatkey11}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey12}' value='${ldap.attrib.gen.map.olatkey12}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey13}' value='${ldap.attrib.gen.map.olatkey13}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey14}' value='${ldap.attrib.gen.map.olatkey14}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey15}' value='${ldap.attrib.gen.map.olatkey15}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey16}' value='${ldap.attrib.gen.map.olatkey16}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey17}' value='${ldap.attrib.gen.map.olatkey17}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey18}' value='${ldap.attrib.gen.map.olatkey18}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey19}' value='${ldap.attrib.gen.map.olatkey19}' />
+    			<entry key='${ldap.attrib.gen.map.ldapkey20}' value='${ldap.attrib.gen.map.olatkey20}' />
+    		</map>
+    	</property>
+    	
+    	<!-- 
+   			Specify static OLAT user properties that should be populated with a predefined value for 
+   			each user. This is an optional feature, leave the property empty if you don't need it.
+   			It can be use e.g. to distinguish LDAP users from local OLAT users in a course using 
+   			the getUserProperty() condition.
+   		 -->
+    	<property name="staticUserProperties">
+    		<map>
+     			<!-- <entry key='institutionalName' value='MyInstitution' /> -->
+     			<entry key='${ldap.attrib.static.olatkey1}' value='${ldap.attrib.static.value1}' />
+     			<entry key='${ldap.attrib.static.olatkey2}' value='${ldap.attrib.static.value2}' />
+     			<entry key='${ldap.attrib.static.olatkey3}' value='${ldap.attrib.static.value3}' />
+    		</map>
+    	</property>
+    	
+    	<!-- 
+    		Specify optional OLAT user properties that are mapped and synced only when the user is 
+    		created and not in any subsequent sync process. This can be used e.g when a dummy mail 
+    		address is used to create the user and then users change their email in OLAT. Adding
+    		the user email property to this list will prevent that the user changed email is overwritten
+    		with the dummy email on the next sync.  
+    	 -->
+    	<property name="syncOnlyOnCreateProperties">
+    		<set>
+    			<!-- <value>email</value> -->
+    			<value>${ldap.attrib.sync.once.olatkey1}</value>
+    			<value>${ldap.attrib.sync.once.olatkey2}</value>
+    			<value>${ldap.attrib.sync.once.olatkey3}</value>
+    		</set>
+    	</property>
+    </bean>
+
+
+	<!-- LDAP admin. panel -->
+	<bean class="org.olat.core.extensions.action.GenericActionExtension" id="sysadmin.menupoint.syscfg.ldapcfg" init-method="initExtensionPoints">
+		<property name="order" value="8820" />
+		<property name="enabled" value="${ldap.enable}" />
+		<property name="actionController">	
+			<bean class="org.olat.core.gui.control.creator.AutoCreator" scope="prototype">
+				<property name="className" value="org.olat.ldap.ui.LDAPAdminController"/>
+			</bean>
+		</property>
+		<property name="navigationKey" value="ldapadmin" />
+		<property name="i18nActionKey" value="admin.menu.ldap"/>
+		<property name="i18nDescriptionKey" value="admin.menu.ldap.desc"/>
+		<property name="translationPackage" value="org.olat.ldap.ui"/>
+		<property name="extensionPoints">
+			<list>	
+				<value>org.olat.admin.SystemAdminMainController</value>		
+			</list>
+		</property>
+		<property name="parentTreeNodeIdentifier" value="loginAndSecurityParent" /> 
+	</bean>
+</beans>

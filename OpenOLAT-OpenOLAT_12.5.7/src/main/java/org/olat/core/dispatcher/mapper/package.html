@@ -1,0 +1,63 @@
+<html>
+<head>
+</head>
+
+<body>
+<h2>Overview: mappers and static file handling</h2>
+Brasato offers two ways to deliver files to the browser: 
+<ol>
+<li><a href="#dispatcher">Via dispatcher</a></li>
+<li><a href="#mapper">Via mapper</a></li>
+</ol>
+
+<h3><a name="dispatcher">Dispatcher: static application files</h3>
+<p>
+To deliver static files that are part of the application brasato offers
+one concept:
+</p>
+<ol>
+<li>Files in webapp/static*</li>
+</ol>
+<p>
+The first mechanism is used to embedd general framework resources, e.g.
+css files, themes and basic javascript files. Those files are normally
+embedded directly in body.html. Those files are deliverd using the
+<code>StaticMediaDispatcher</code> class.
+</p>
+
+<h3><a name="mapper">Mapper: dynamic (content) files</h3>
+<p>
+While the delivery of static resources via the dispatchers described
+above is a service infrastructure of the framework, the mapper comes in
+place when you want to have control over the delivery process (e.g a
+protected resource) or the delivered files are generated on the fly
+(e.g. an excel file download).
+</p>
+<h4>Registration</h4>
+<p>Mappers must be registered using the mapper registry or the global
+mapper registry. The difference between global and normal is that
+globals mappers have a global mapper name based on the class that
+registered for the mapper. Thus, the global mapper will always have the
+same URL and can be cached by the browser.  Global mappers are shared between all users. Make sure you implement a
+proper last-modified in the resources you deliver via global mappers!
+</p>
+<p>The normal mapper registry registers for user session based mappers.
+The life-time of such mappers is bound to the user session.
+</p>
+<h4>Deregistration</h4>
+<p>Make sure you unregister the mappers you register. Use the
+BasicController to work with mappers and use the convenience methods
+there to register mappers
+</p>
+<p>Note that global mappers don't need to be unregistered. They are
+registered only once in a class and cleaned up when the applicatoin
+shuts down.</p>
+
+<h3>Diagram with Apache</h3>
+TODO
+<i>Note this graphic is outdated !</i>
+<p>
+<img src="doc-files/StaticFiles.png"/>
+
+</body>
+</html>

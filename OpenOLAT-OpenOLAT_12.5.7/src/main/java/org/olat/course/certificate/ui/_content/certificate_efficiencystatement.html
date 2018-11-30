@@ -1,0 +1,104 @@
+#if ($collectwizard)
+<script type="text/javascript">
+<!--
+## resize the window if collector-wizard is shown
+jQuery(function(){
+	window.resizeTo(1100,650);
+});
+//-->
+</script>
+#end
+
+<div class="o_efficiencystatement container-fluid">
+	<div class="row">
+		#if($r.available("collectArtefactLink"))
+			<div class="pull-right">$r.render("collectArtefactLink")</div>
+		#end
+		<h3><i class="o_icon o_icon_certificate"> </i> $r.translate("efficiencystatement.title")</h3>	
+		
+		#if($r.available("home.link") || $r.available("contact.link"))
+		<div class="o_button_group_right o_block_bottom">
+			<div class=" btn-group">
+		    	#if($r.available("home.link"))
+				$r.render("home.link")
+				#end
+				#if($r.available("contact.link"))
+					$r.render("contact.link")
+				#end
+			</div>
+		</div>
+		#end
+		<div class="row">
+		<div class="col-xs-12 col-sm-6">
+			<table class="table table-condensed table-striped">
+			<tbody>
+				<tr>
+					<th style="width: 30%;">$r.translate("username")</th>
+					<td>$username</td>
+				</tr>
+			#foreach( $propertyHandler in $userPropertyHandlers )
+				#if ($propertyHandler.getUserPropertyAsHTML($user, $locale) && $propertyHandler.getUserPropertyAsHTML($user, $locale) != "")
+				<tr>
+					<th>
+						$r.translate($propertyHandler.i18nFormElementLabelKey())
+					</th>
+					<td>
+						#if($propertyHandler.name == "email")
+							$propertyHandler.getUserProperty($user, $locale)
+						#else
+							$propertyHandler.getUserPropertyAsHTML($user, $locale)
+						#end
+					</td>
+				</tr>
+				#end
+			#end
+			</tbody>
+			</table>
+		</div>
+		
+		<div class="col-xs-12 col-sm-6">
+			<table class="table table-condensed table-striped">
+			<tbody>
+			#if($courseTitle)
+				<tr>
+					<th style="width: 30%;">$r.translate("course")</th>
+					<td>$courseTitle
+						#if($r.available("course.link"))
+							<div>$r.render("course.link")</div>
+						#end
+					</td>
+				</tr>
+			#end
+			#if($date)
+				<tr>
+					<th style="width: 30%;">$r.translate("date")</th>
+					<td>$date</td>
+				</tr>
+			#end
+			#if($groupName)
+				<tr>
+					<th style="width: 30%;">$r.translate("group")</th>
+					<td>
+						$groupName 
+						#if($r.available("group.link"))
+							<div>$r.render("group.link")</div>
+						#end
+					</td>
+				</tr>
+			#end
+			</tbody>
+			</table>
+		</div>
+	</div></div>
+	
+	<div class="row">
+	#if($r.available("segments"))
+		$r.render("segments")
+		#if($r.available("segmentCmp"))
+			<div class="o_block">$r.render("segmentCmp")</div>
+		#end
+	#elseif($r.available("segmentCmp"))
+		<div class="o_block">$r.render("segmentCmp")</div>
+	#end
+	</div>
+</div>

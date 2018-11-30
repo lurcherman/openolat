@@ -1,0 +1,15 @@
+<div class='o_im_buddieslist'>
+#if ($r.available("toggleOnline") || $r.available("toggleGroups"))
+	<div class='o_im_buddieslist_toggler'>
+		<div class="btn-group btn-group-justified btn-group-xs">
+			#if($r.available("toggleOnline")) $r.render("toggleOnline") #end 
+			$r.render("toggleGroups")
+		</div>
+	</div>
+#end
+
+	<div class="o_block">
+		$r.contextHelpWithWrapper("Chat")
+		$r.render("buddiesListContent")
+	</div>
+</div>

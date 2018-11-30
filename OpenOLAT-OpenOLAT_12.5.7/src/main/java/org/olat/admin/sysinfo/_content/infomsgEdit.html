@@ -1,0 +1,21 @@
+<fieldset class="o_sel_maintenance_msg_form">
+#if ($infoEdit)
+	<legend>$r.translate("infomsgEdit")</legend>
+	#if ($cluster)
+		$r.render("infoMsgFormCluster")
+	#else
+		$r.render("infoMsgForm")
+	#end
+#else
+	<legend>$r.translate("maintenancemsgEdit")</legend>
+	#if ($cluster)
+		$r.render("maintenanceMsgFormCluster")
+	#else
+		$r.render("maintenanceMsgForm")
+	#end
+#end
+
+<h4>$r.translate("staticFolder")</h4>
+<div class="o_copy_code o_nowrap"><input type="text" value="$extlink" onclick="this.select()"/></div>
+$r.render("staticFolder")
+</fieldset>

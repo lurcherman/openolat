@@ -1,0 +1,113 @@
+<div id="$r.getCId()" class="o_course_run">
+#if ($hasScore || $hasPassed)
+	<div class="panel panel-default o_personal">
+	  	<div class="panel-heading"><h4 class="panel-title">$r.translate("score.title")</h4></div>
+		<table class="table">
+		<tbody>
+			#if ($hasScore)
+			<tr class="o_score">
+				<th>$r.translate("calcedscore")</th>
+				<td>
+				#if($scoreScore)		
+					$scoreScore
+				#else
+					$r.translate("score.noinfo")
+				#end
+				</td> 
+			</tr> 
+			#end			
+
+			#if ($hasPassed)
+			<tr class="o_state #if ($hasPassedValue && $scorePassed) o_passed #elseif($hasPassedValue && !$scorePassed) o_failed #else o_unknown #end">
+				<th>$r.translate("calcedpassed")</th>
+				<td>
+				#if($hasPassedValue && $scorePassed)	
+					<i class="o_icon o_icon_passed"></i> 
+					$r.translate("passed.yes")
+				#elseif($hasPassedValue && !$scorePassed)		
+					<i class="o_icon o_icon_failed"></i> 
+					$r.translate("passed.no")
+				#else
+					$r.translate("passed.noinfo")
+				#end
+				</td>
+			</tr>
+			#end
+		</tbody>
+		</table>
+		#if($r.available("certification"))
+			<div class="o_button_group">
+				$r.render("certification")
+			</div>
+		#end
+	</div>
+	
+	#if ($r.available("highScore"))
+		$r.render("highScore")
+	#end
+	
+ #end
+
+#if ($children && $children.size() > 0)
+	#set ($i = 0)
+	<div class="o_toc #if ($layoutType == 1) o_one_column #else o_two_column #end">
+		<div class="row">
+			#foreach($coursenode in $children)
+				## display in two rows when screen is larger than 992px and two columns layout selected
+				<div class="col-sm-12 #if ($layoutType == 2) col-md-6 o_column #end">
+					$r.render("childView_${coursenode.getIdent()}")
+				</div>
+				#set ($i = $i + 1)
+				#if($i%2 == 0)
+					</div><div class="row">
+				#end
+			#end
+		</div>
+	</div>
+#end
+
+<script type="text/javascript">
+/* <![CDATA[ */ 
+jQuery(function() {
+	## Add event JS event listeners for click and keydown events on all the gotonodes links to jump to top
+	jQuery('.o_course_run .o_toc a.o_gotoNode').each(function(n,m) {
+		jQuery(m).on('keydown click', function(){o_scrollToElement('#o_top');});
+	});
+
+	## resize items to match height on each row, not possible via CSS 
+	#if ($layoutType == 2)
+	if (jQuery(window).width() > 992) {
+		jQuery(function() {
+		    var maxHeight = 0;
+			var lastElem = null;
+			## find hightest element for each pair
+			jQuery('.o_course_run .o_toc .o_entry').each(function(pos, child) {
+				try {
+					if (pos % 2 == 0) {
+						## save for next iteration
+						maxHeight = jQuery(child).innerHeight();
+						lastElem = child;
+					} else {
+				    	var height = jQuery(child).innerHeight();
+				    	if(height > maxHeight) {
+				    		## second is larger than first, update first
+				    		maxHeight = height; 
+					    	var el = jQuery(lastElem);
+					   		var padding = parseInt(el.css('padding-top')) + parseInt(el.css('padding-bottom'));
+					  		el.height((maxHeight - padding) + 'px');
+				    	} else {
+				    		## first is larger than second, update second
+					    	var el = jQuery(child);
+					   		var padding = parseInt(el.css('padding-top')) + parseInt(el.css('padding-bottom'));
+					  		el.height((maxHeight - padding) + 'px');			    		
+				    	}
+					}
+				} catch (e) { if(window.console) console.log(e) }
+			});
+		});
+	}
+	#end
+});
+/* ]]> */
+</script>
+</div>

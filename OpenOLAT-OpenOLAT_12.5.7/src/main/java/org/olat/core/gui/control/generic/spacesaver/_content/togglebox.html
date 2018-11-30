@@ -1,0 +1,14 @@
+<div class="o_togglebox_wrapper">
+	#if($toggleStatus)
+		$r.render("toggle")
+		<div class="o_togglebox">
+			<div id="my_toggle_box_uuid" class="o_togglebox_content">	
+				$r.render("cmpToToggle")
+				$r.render("hide")
+			</div>
+		</div>
+	#else
+		$r.render("toggle")
+	#end
+</div>
+			

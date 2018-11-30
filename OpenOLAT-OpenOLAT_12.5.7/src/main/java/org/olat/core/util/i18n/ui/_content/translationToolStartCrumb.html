@@ -1,0 +1,86 @@
+<div class="o_translation_start">
+	<div  class="container-fluid">
+		<div class="row">
+			<div class="col-sm-6">
+				<div class="form-group">
+					$r.render("start.referenceLangSelection_LABEL", $f.getItemId("start.referenceLangSelection"), "false")
+					<i class="o_icon_left o_flag_$referenceLangKey"> </i>
+					$r.render("start.referenceLangSelection")
+				</div>
+				<div class="form-group">
+					$r.render("start.targetLangSelection_LABEL", $f.getItemId("start.targetLangSelection"), "false")
+					<i class="o_flag o_flag_$targetLangKey"> </i>
+					$r.render("start.targetLangSelection")
+				</div>
+			</div>
+			<div class="col-sm-6">
+				$r.translate("start.progressBar"):
+				$r.render("progressBar")
+			</div>
+		</div>
+	</div>
+
+	<div class="container-fluid">	
+		<p class="o_info">$r.translate("start.${customizingPrefix}intro")</p>
+		
+		<div class="row">
+			<div class="col-sm-6">
+				<fieldset class="form">
+					<legend><i class="o_icon o_icon_translation_item"> </i> $r.translate("start.${customizingPrefix}missing.title")</legend>
+					<p>$r.translate("start.${customizingPrefix}missing.intro")</p>
+					<p>$r.translate("start.${customizingPrefix}missing.count"): $missingCount</p>
+					$r.render("missingBundlesSelection")
+					$r.render("missingBundlesIncludeBundlesChildrenSwitch")
+					$r.render("missingBundlesPrioritySortSwitch")
+					<div class="o_button_group">
+						$r.render("missingListButton")
+						$r.render("missingTranslateButton")
+					</div>		
+				</fieldset>
+			</div>
+			<div class="col-sm-6">
+				<fieldset class="form">
+					<legend><i class="o_icon o_icon_translation_item"> </i> $r.translate("start.${customizingPrefix}existing.title")</legend>
+					<p>$r.translate("start.${customizingPrefix}existing.intro")</p>
+					<p>$r.translate("start.${customizingPrefix}existing.count"): $existingCount</p>
+					$r.render("existingBundlesSelection")
+					$r.render("existingBundlesIncludeBundlesChildrenSwitch")
+					$r.render("existingBundlesPrioritySortSwitch")
+					<div class="o_button_group">
+						$r.render("existingListButton")
+						$r.render("existingTranslateButton")
+					</div>
+				</fieldset>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6">
+				<fieldset class="form">
+					<legend><i class="o_icon o_icon_translation_package"> </i> $r.translate("start.all.title")</legend>
+					<p>$r.translate("start.all.intro")</p>
+					<p>$r.translate("start.all.count"): $allCount</p>
+					$r.render("allBundlesSelection")
+					$r.render("allBundlesIncludeBundlesChildrenSwitch")
+					$r.render("allBundlesPrioritySortSwitch")
+					<div class="o_button_group">
+						$r.render("allListButton")
+						$r.render("allTranslateButton")
+					</div>
+				</fieldset>	
+			</div>
+			<div class="col-sm-6">
+				<fieldset>
+					<legend><i class="o_icon o_icon_search"> </i> $r.translate("start.search.title")</legend>
+					<p>$r.translate("start.${customizingPrefix}search.intro")</p>
+					$r.render("searchLayoutContainer")
+				</fieldset>
+			</div>
+		</div>
+	</div>
+	## set meaningfull page title
+	<script type="text/javascript">
+	/* <![CDATA[ */ 
+		document.title = "$r.translate("page.appname") - $r.escapeHtml($r.translate("start.title"))";
+	/* ]]> */
+	</script>	
+</div>

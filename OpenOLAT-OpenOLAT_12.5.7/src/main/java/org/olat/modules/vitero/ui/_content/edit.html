@@ -1,0 +1,31 @@
+<fieldset>
+	<legend>$r.contextHelpWithWrapper("Communication and Collaboration#_vitero")
+	$r.translate("booking.admin.title")</legend>
+	
+	<table class="table">
+		<thead>
+			<tr>
+				<th>$r.translate("group.name")</th>
+				<th>$r.translate("booking.begin")</th>
+				<th>$r.translate("booking.end")</th>
+				<th colspan="4"></th>
+			</tr>
+		</thead>
+		<tbody>
+		#foreach($bookingDisplay in $bookingDisplays)
+			<tr>
+				<td>$bookingDisplay.groupName</td>
+				<td>$r.formatDateAndTime($bookingDisplay.begin)</td>
+				<td>$r.formatDateAndTime($bookingDisplay.end)</td>
+				<td>$r.render($bookingDisplay.editButton.component.componentName)</td>
+				<td>$r.render($bookingDisplay.usersButton.component.componentName)</td>
+				<td>$r.render($bookingDisplay.groupButton.component.componentName)</td>
+				<td>$r.render($bookingDisplay.deleteButton.component.componentName)</td>
+			</tr>
+		#end
+		</tbody>
+	</table>
+	<div class="o_button_group">
+		$r.render("buttons-cont")
+	</div>
+</fieldset>

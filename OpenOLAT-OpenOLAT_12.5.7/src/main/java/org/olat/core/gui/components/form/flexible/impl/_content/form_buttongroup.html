@@ -1,0 +1,5 @@
+<div #if(!$!f.domReplacementWrapperRequired) id="$r.getCId()" #end class="form-inline $f.getContainerCssClass()">
+#foreach ($item in $formitemnames)
+	$r.render("$item")
+#end
+</div>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xsi:schemaLocation="
+  http://www.springframework.org/schema/beans 
+  http://www.springframework.org/schema/beans/spring-beans.xsd 
+  http://www.springframework.org/schema/context 
+  http://www.springframework.org/schema/context/spring-context.xsd">
+  
+	<context:component-scan base-package="org.olat.core.util.session,org.olat.core.util.vfs.version,org.olat.core.util.i18n" />
+
+	<bean id="codeHelper" class="org.olat.core.util.CodeHelper" >
+		<constructor-arg value="${node.id}" />
+	</bean>
+	
+	<bean id ="org.olat.core.util.WebappHelper" class="org.olat.core.util.WebappHelper"  init-method="init" destroy-method="destroy">
+		<!-- relative path from the webapp directory to the source directory (only relavant for development/debuging mode) -->
+		<property name="fullPathToSrc" value="${project.build.home.directory}/src/main/java" />
+		<property name="fullPathToWebappSrc" value="${project.build.home.directory}/src/main/webapp" />
+		<property name="instanceId" value="${instance.id}"/>
+		<property name="nodeId" value="${node.id}"/>
+		<property name="userDataRoot" value="${userdata.dir}"/>
+		<property name="mailConfig">
+			<map>
+				<entry key="mailhost" value="${smtp.host}"/>
+				<entry key="mailport" value="${smtp.port}"/>
+				<entry key="mailTimeout" value="${smtp.timeout}"/> <!-- timeout in milliseconds -->
+				<entry key="smtpUser" value="${smtp.user}"/>
+				<entry key="smtpPwd" value="${smtp.pwd}"/>
+				<entry key="sslEnabled" value="${smtp.sslEnabled}"/>
+				<entry key="sslCheckCertificate" value="${smtp.sslCheckCertificate}"/>
+				<entry key="smtpStarttls" value="${smtp.starttls}"/>
+				<entry key="mailFrom" value="${fromemail}"/>
+				<entry key="mailFromName" value="${fromname}"/>
+				<entry key="smtpFrom" value="${smtp.from}"/>
+				<entry key="mailReplyTo" value="${adminemail}"/>
+				<entry key="mailSupport" value="${supportemail}"/>
+				<entry key="mailQuota" value="${quotaemail}"/>
+				<entry key="mailDeleteUser" value="${deleteuseremail}"/>
+				<entry key="mailError" value="${erroremail}"/>
+				<entry key="mailAttachmentMaxSize" value="${mail.attachment.maxsize}"/>
+			</map>
+		</property>
+		<property name="defaultCharset" value="${defaultcharset}" />
+		<property name="enforceUtf8Filesystem" value="${enforce.utf8.filesystem}" />
+		<property name="version" value="${build.version}" />
+		<property name="applicationName" value="${application.name}" />
+		<property name="mobileContext" value="${mobile.context}" />
+		<property name="mathJaxCdn" value="${mathjax.cdn}"/>
+		<property name="mathJaxConfig" value="${mathjax.config}"/>
+		<property name="mathJaxMarkers" value="${mathjax.markers}"/>
+	</bean>
+
+	<bean id="org.olat.core.helpers.Settings" class="org.olat.core.helpers.Settings" depends-on="org.olat.core.util.WebappHelper">
+		<!-- OLAT Tomcat server configuration parameters. This is used e.g. to assemble absolute URIS where needed. -->
+		<property name="serverDomainName" value="${server.domainname}" />
+		<property name="serverSecurePort" value="${server.port.ssl}" />
+		<property name="serverInsecurePort" value="${server.port}" />
+		<property name="legacyContext" value="${server.legacy.context}" />		
+		<!-- true enable debug mode, not for production mode but for productive hours ;) -->
+		<property name="debug" value="${olat.debug}" />
+		<!-- List of user agents that should be served using the web 1.0 mode (no ajax DOM replacement).
+		 	A user agent that matches against one of the regular expressions below will be blocked.					
+		-->
+		<property name="ajaxBlacklistedUserAgents">
+			<!-- List of user agents that are blocked for the AJAX mode. A user agent that matches against one of the 
+				regular expressions below will be served in web 1.0 mode  -->
+			<list>
+				<value>.*WebKit/5[01].*</value> 		<!-- older than safari 3.0 -->
+				<value>.*MSIE [2345].*</value>			<!-- older than IE 6.0 -->
+				<value>.*Firefox/1\..</value>			<!-- older than FF 2.0  -->
+				<value>.*Opera/[45678].*</value>		<!-- older than Opera 9 -->
+				<value>.*Gecko/200[0123456].*</value>	<!-- Gecko engine older than 2006  -->
+				<value>.*Lynx.*</value>					<!-- Lynx console browser (no js) -->
+			</list>
+		</property>		
+		<!-- 
+			Optional path to a directory which contains custom themes. This is an alternative to placing the theme
+			into the webapp, default is to have your custom themes in olatdata/customizing/themes
+			Note that this must be an absolute path.
+		 -->
+		<property name="guiCustomThemePath" value="${layout.custom.themes.dir}" />						
+
+		<!-- 
+	 	 	Set the regexp that matches for css class name prefixes that should be
+	 	 	used in the HTML editor to limit css names that are available in the
+	 	 	menus or let empty for no rule.
+	 	-->				
+		<property name="htmlEditorContentCssClassPrefixes" value="${html.editor.css.class.prefix}" />				
+
+		<!-- the versionid is prepended to various dynamically linked sources like css and js lib includes.
+			the prepending guarantees that all browsers are forced to reload the new files, since e.g. css cache invalidation
+			based on lastmodified http headers is broken on some browsers. this here is the only safe way.
+			for each release it is recommended to adjust the value to a new value which has neven been used before (such as the version number)
+			NOTE: please use only a-z, 0-9 and _ as characters (those which are safe in the url encoding without converting)
+		 -->
+		<property name="version" value="${build.version}" />
+		<property name="buildIdentifier" value="${build.identifier}" />
+		<property name="repoRevision" value="${build.repo.revision}" />
+		<property name="applicationName" value="${application.name}" />
+		<property name="clusterMode" value="${cluster.mode}"/>
+		<property name="nodeId" value="${node.id}"/>
+	</bean>
+
+	<bean id="httpClientFactory" class="org.olat.core.util.httpclient.HttpClientFactory" destroy-method="destroy"/>
+	
+	
+	<bean id="org.olat.core.util.vfs.QuotaManager" class="org.olat.admin.quota.QuotaManagerImpl"  init-method="init" >
+		<constructor-arg index="0" ref="resourceManager" />
+		<constructor-arg index="1" ref="propertyManager" />
+	</bean>
+	
+	<bean id="vfsLockManager" class="org.olat.core.util.vfs.lock.VFSLockManagerImpl" >
+		<property name="metaInfoFactory" ref="metaInfoFactory"/>
+	</bean>
+	
+	<!--  gui prefs via database -->
+	<bean id="core.preferences.PreferencesStorage"
+		class="org.olat.core.util.prefs.db.DbStorage"  />
+
+	
+	<!-- Cache -->
+	<bean id="infinispanCacheManager" class="org.olat.core.util.cache.infinispan.InfinispanCacheManager" destroy-method="stop">
+		<property name="configuration" value="infinispan-config.xml"/>
+		<property name="jndiName" value="${infinispan.jndi}"/>
+	</bean>
+	
+	<bean id="infinispanCacher" class="org.olat.core.util.cache.infinispan.InfinispanCacher">
+		<constructor-arg index="0" ref="infinispanCacheManager"/>
+	</bean>
+</beans>

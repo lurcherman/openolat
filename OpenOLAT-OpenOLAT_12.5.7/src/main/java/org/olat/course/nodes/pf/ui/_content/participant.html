@@ -1,0 +1,12 @@
+<div class="o_sel_pf_participant_folder">
+#if ($limit)
+	<div class="o_note">$r.translate("limit.count.info", $limit)</div>
+#end
+
+#if ($r.available("contextualSubscription"))
+	$r.render("contextualSubscription")
+#end
+$r.render("folder")
+</div>
+
+

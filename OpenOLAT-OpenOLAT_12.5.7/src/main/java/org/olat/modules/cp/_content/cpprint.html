@@ -1,0 +1,24 @@
+<div class="o_form #if ($off_css_class) $off_css_class #end clearfix">
+#if ($off_title) <fieldset><legend>$off_title</legend> #end
+#if ($off_desc) <div class="o_info">$off_desc</div> #end
+
+	#foreach($nodeSelection in $nodeSelections)
+		<div style="margin-left:${nodeSelection.getUserObject().getIndentation()}0px; ">
+			$r.render($nodeSelection.getComponent().getComponentName())
+		</div>
+	#end
+
+	$r.render("cpprint")
+	
+	<br/>
+	<div class="o_togglecheck">
+		<input type="checkbox" checked="checked" disabled="disabled" />$r.render("checkall")
+		<input type="checkbox" disabled="disabled" />$r.render("uncheckall")
+	</div>
+	
+	<div class="o_button_group">
+		$r.render("print-cancel")
+	</div>
+
+#if ($off_title) </fieldset> #end
+</div>

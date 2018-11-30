@@ -1,0 +1,92 @@
+#if ($isassessable)	
+	#if($attempts > 0)
+		<div class="panel panel-default o_personal">
+		  	<div class="panel-heading">
+	  			<h4 class="panel-title">$r.translate("personal.title")</h4>
+	  		</div>
+			<table class="table">
+			<tbody>
+				<tr class="o_attempts">
+					<th>$r.translate("attempts.yourattempts")</th>
+					<td>$attempts</td> 
+				</tr> 
+				<tr class="o_score">
+					<th>$r.translate("score.yourscore")</th>
+					<td>
+					#if($score)
+						#if($resultsVisible)
+							$score
+						#else
+							<span id="o_score_in_review" class="o_in_review">
+								<i class="o_icon o_icon-fw o_icon_warn"> </i>
+								$r.translateWithPackage("org.olat.course.nodes.ms", "in.review")
+							</span>
+							$r.mouseoverHelp("o_score_in_review", "assessment.review.explanation")
+						#end
+					#end
+					</td> 
+				</tr> 
+				<tr class="o_state #if(!$resultsVisible) #elseif($hasPassedValue && $passed) o_passed #elseif($hasPassedValue && !$passed) o_failed #else o_unknown #end">
+					<th>$r.translate("passed.yourpassed")</th>
+					<td>
+					#if($hasPassedValue && !$resultsVisible)
+						<span id="o_passed_in_review" class="o_in_review">
+							<i class="o_icon o_icon-fw o_icon_warn"> </i>
+							$r.translateWithPackage("org.olat.course.nodes.ms", "in.review")
+						</span>
+							$r.mouseoverHelp("o_passed_in_review", "assessment.review.explanation")
+					#elseif($hasPassedValue && $passed)	
+						<i class="o_icon o_icon_passed"> </i> $r.translate("passed.yes")
+					#elseif($hasPassedValue && !$passed)		
+						<i class="o_icon o_icon_failed"> </i> $r.translate("passed.no")
+					#else
+						$r.translateWithPackage("org.olat.course.nodes.st", "passed.noinfo")
+					#end
+					</td>
+				</tr>
+			</tbody>
+			</table>
+		</div>
+	
+		#if ($comment)		
+		<div class="panel panel-default o_comment">
+		  	<div class="panel-heading" data-toggle="collapse" data-target="#collapseComment">
+	  			<h4 class="panel-title">
+	  				<i id="collapseCommentToggler" class="o_icon o_icon-fw o_icon_close_togglebox"> </i>
+	  				$r.translate("comment.yourcomment")
+	  			</h4>
+	  		</div>
+		<div id="collapseComment" class="panel-collapse collapse in"><div class="panel-body">
+				$comment
+	  		</div>
+		</div></div>
+		<script type="text/javascript">
+			/* <![CDATA[ */
+				jQuery('#collapseComment').on('hide.bs.collapse', function () {
+						jQuery('#collapseCommentToggler').removeClass('o_icon_close_togglebox').addClass('o_icon_open_togglebox');
+				})
+				jQuery('#collapseComment').on('show.bs.collapse', function () {
+						jQuery('#collapseCommentToggler').removeClass('o_icon_open_togglebox').addClass('o_icon_close_togglebox');
+				})
+			/* ]]> */
+		</script>
+		#end
+	#else
+		<div class="o_no_scoreinfo">
+			$r.translate("score.noscoreinfoyet")
+		</div>
+	#end
+#end
+#if ($r.available("highScore"))
+	$r.render("highScore")
+#end
+
+#if ($maxAttemptsReached)
+<div class="o_warning">
+	$r.translate("attempts.max.reached")
+</div>
+#else
+	<div class="o_centered_form">
+		$r.render("chooseScormRunMode")
+	</div>
+#end

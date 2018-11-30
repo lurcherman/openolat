@@ -1,0 +1,15 @@
+<div class="o_form form-horizontal clearfix">
+	<div class="o_desc">$off_desc</div>
+	#foreach($nodeSelection in $nodeSelections)
+		<div style="margin-left:${nodeSelection.getUserObject().getIndentation()}0px;">
+			$r.render($nodeSelection.getComponent().getComponentName())
+		</div>
+	#end
+	<br/>
+	<div class="o_togglecheck">
+		<input type="checkbox" checked="checked" disabled="disabled" />$r.render("checkall")
+		<input type="checkbox" disabled="disabled" />$r.render("uncheckall")
+	</div>
+	
+	<div class=o_button_group>$r.render("ok-cancel")</div>
+</div>

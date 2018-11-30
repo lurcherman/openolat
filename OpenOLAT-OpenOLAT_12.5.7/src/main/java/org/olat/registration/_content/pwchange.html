@@ -1,0 +1,11 @@
+$r.render("pwwizard")
+<p class="o_info">$text</p>
+#if ($r.isNotNull($pwdhelp))
+	<p>$pwdhelp</p>
+#end
+$r.render("pwarea")
+#if ($r.available("pwchange.homelink"))
+	<div class="o_button_group o_button_group_left">
+		$r.render("pwchange.homelink")
+	</div>
+#end

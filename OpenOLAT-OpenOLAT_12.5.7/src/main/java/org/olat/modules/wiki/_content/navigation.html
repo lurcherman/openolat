@@ -1,0 +1,22 @@
+<div class="o_wikimod_nav clearfix"><ul class="list-inline pull-right">
+#if($r.available("portfolio-link"))
+	<li>$r.render("portfolio-link")</li>
+#end
+#if ($r.available("subscription"))
+	<li>$r.render("subscription")</li>
+#end
+</ul></div><div class="o_wikimod_nav clearfix"><ul class="nav navbar-nav navbar-left">
+#if($r.available("search_article"))
+	<li>$r.render("search_article")</li>
+#end
+</ul><ul class="nav navbar-nav navbar-right" >
+	#if($r.available("navigation.create.article"))
+	<li>$r.render("navigation.create.article")</li>
+	#end
+	##if($navigationEnabled)
+		<li>$r.render("navi")</li>
+		<li>$r.render("wikiMenuDropdown")</li>
+	##end
+	<li>$r.render("breadcrumb")</li>
+	<li>$r.render("archive.wiki")</li>	
+</ul></div>

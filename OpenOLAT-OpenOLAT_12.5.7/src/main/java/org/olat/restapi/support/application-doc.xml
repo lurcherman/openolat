@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<applicationDocs targetNamespace="http://wadl.dev.java.net/2009/02">
+
+    <doc xml:lang="en" title="Documentation of OpenOLAT REST API">
+         <p>The goal of the REST API is to provide an easy way to exchange
+         URLs. It is also used to integrate with other systems such as student
+         administration, external course administration and/or external learning group
+         administration.;</p>
+         
+         <h2>Concepts</h2>
+         <p>Representational State Transfer or REST is a style of architecture to be primarily used with
+         the HTTP protocol, but not exclusively. In the case of HTTP, it utilizes all 
+         its features: URIs to describe resources, HTTP Methods as "verbs" to manipulate resources 
+         (GET to retrieve resources, PUT to create new ones, POST to modify them, DELETE...),
+         HTTP Headers and Media Types for content negotiation...</p>
+         <p>In OpenOLAT, the JRS-311 is used as a backend for the implementation of our REST API. JSR-311 is a standard
+         from J2EE. We use the reference implementation from the following standard: <a href="https://jersey.dev.java.net/">Jersey</a>.</p>
+         <img src="schema.jpg" title="schema" />
+         <h4>Usage</h4>
+         <p>
+			The OpenOLAT REST API has been developed with remote management
+			applications in mind. It does not implement all features available in
+			the web UI and many of the requests are limited to administrative users
+			such as admin, user- or group managers and authors. 
+         </p>
+         <p>
+			While theoretically possible, it is not meant as an API to
+			implement alternative UI clients for end users. Keep this in mind when
+			using the API.
+         </p>
+         
+         
+         <h2>Security</h2>
+         <p>The security is based on a two level mechanism, as it is in OpenOLAT.</p>
+         <ol>
+         	<li>The first level is a servlet filter which collects all requests to the REST API. This filter
+         	determines whether the URI is open to everyone (/api, /ping, /auth...) or if it needs an authentication. The authentication
+         	itself is delegated to a web service.</li>
+         	<li>The second level happens in all entry points of the REST API. Every method checks if
+         	the user (if a user must be authenticated) has enough privileges to operate on the desired resource.</li>
+         </ol>
+         <p>To maintain a valid authentication over several requests, the filter proposes two methods:</p>
+         <ol>
+         	<li>Reuse the session cookie on every request. The advantage of this method is that OpenOLAT
+         	doesn't need to create a session on every request.</li>
+         	<li>If you cannot use the session cookie, the filter always adds an HTTP Header (X-OLAT-TOKEN) to
+         	the response. Send this token with the next request to maintain your privileges.</li>
+         </ol>
+         <h4>Best practice usage</h4>
+		<p>If the REST API is used to implement specific features in the
+			OpenOLAT web user interface such as using the course database, the
+			OpenOLAT web session cookie can be reused (method 1). The user is
+			already authenticated in the browser</p>
+		<p>If the REST API is used by an external (server based) application,
+			best-practice is to use basic authentication to authenticate the user
+			and enable session cookies in the http client of the remote
+			application.</p>
+		<p>If none of the above is possible, use method 2 using the
+			X-OLAT-TOKEN. Note that a user can have only one X-OLAT-TOKEN at any
+			time. If your remote application has several (concurrent) workers,
+			basic authentication should be used.</p>
+		<p>
+			If you are building a remote portal and want to implement some kind
+			of home-brew single-sign-on process, method 2 can be used to generate
+			the X-OLAT-TOKEN for every user as a server request. The Token can
+			then be added to each link in the portal to login the user based on the token (?X-OLAT-TOKEN=xyz).
+			When clicking the link, OpenOLAT will identify the user based on the
+			token and create a valid user session. Security wise there are better options to
+			achieve the same. We recommend using oAuth instead which is supported
+			by OpenOLAT as well. 
+         </p>
+         
+         <h2>Configuration</h2>
+         <p>A spring bean allows to configure Resources, Singletons and Providers; either statically
+         with the XML configuration of the bean (<code>/org/olat/restapi/_spring/restApiContext.xml</code>) or
+         programmatically by adding or removing classes and singletons to/from the bean (bean id is the
+         same as its interface: <code>org.olat.restapi.support.RestRegistrationService</code>).</p>
+         <p>OpenOLAT uses the standard JAXB provider from Jersey to produce XML from java objects, as well as 
+         the JSON provider from <a href="http://jackson.codehaus.org/">Jackson</a>, which reuses
+         the same JAXB annotations.</p> 
+         <p><strong>Very important!</strong> All configuration settings must be done before the Jersey's servlet starts.</p>
+         
+         <h2>Example</h2>
+         <p>Here is a little example on how to create a user and add it to a learning group:</p>
+         <ol>
+         	<li>
+	         	Create a user<br />
+	         	<code>
+	         	PUT http://www.frentix.com/olat/restapi/users<br />
+	         	HTTP Header: Content-Type application/json<br />
+	         	Response: 200
+	         	</code>
+         	</li>
+         	<li>
+	         	Get the list of groups<br />
+	         	<code>
+	         	GET http://www.frentix.com/olat/restapi/groups<br />
+	         	HTTP Header: Accept application/json<br />
+	         	Response: 200
+	         	</code>
+	         </li>
+         	<li>Choose a group from the response</li>
+         	<li>
+				Add the user to the group<br />
+	         	<code>
+	         	PUT http://www.frentix.com/olat/restapi/groups/{groupId}/users/{identityKey}<br />
+	         	Response: 200
+	         	</code>
+	         	</li>
+         </ol>
+         
+         <h2>Documentation</h2>
+         <p>This documentation is based on the WADL format. The XML file is automatically
+         generated by Jersey on runtime. For documentation purposes, this file is the base
+         of a four step Maven process to produce a human readable HTML file.</p>
+         <ol>
+         	<li>Generate a XSD schema from all the Java classes used by JAXB for mapping</li>
+         	<li>Generate Javadoc with a custom doclet for WADL</li>
+         	<li>Generate WADL with the output of the two preceding steps</li>
+         	<li>Produce the final HTML documentation with XSLT</li>
+         </ol>
+         <p>To add java classes annoted with JAXB, you must update the pom file in the OpenOLAT directory
+         under the artfact <code>maven-jaxb-schemagen-plugin</code>.</p>
+         <p>To add resources, you must add the packages to the following plugins configurations:
+         <code>maven-javadoc-plugin</code> and <code>maven-wadl-plugin</code>.
+         Be aware that the first uses commas to seperates the packages and the second semicolons. Both  recursively search all resources under the packages.</p>
+         <p>Examples for the documentation can only be generated for XML. This is a limitation of the
+         maven plugin.</p>
+         
+         <h2>Contents of resources</h2>
+    </doc>
+    
+</applicationDocs>

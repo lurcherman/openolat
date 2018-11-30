@@ -1,0 +1,22 @@
+#if(!$inAssessment)
+	<div class="o_im_messages">
+		$r.render("newMsgPanel")
+	</div>
+
+	<div id="o_im_status" class="dropdown">
+		<a href="#" class="o_undecorated dropdown-toggle" data-toggle="dropdown" title="$r.translate("im.status.change.long")">
+			<i class="$statusClass"></i>
+		</a>
+		<ul class="dropdown-menu dropdown-menu-right">
+			<li>$r.contextHelpWithWrapper("Chat")</li>
+			<li>$r.render("presence.available")</li>
+			<li>$r.render("presence.dnd")</li>
+			<li>$r.render("presence.unavailable")</li>
+		</ul>
+	</div>
+
+	#if ($r.available("buddiesSummaryPanel"))
+		<div id="o_im_summary">$r.render("buddiesSummaryPanel")</div>
+	#end
+	$r.render("rosterPanel")
+#end

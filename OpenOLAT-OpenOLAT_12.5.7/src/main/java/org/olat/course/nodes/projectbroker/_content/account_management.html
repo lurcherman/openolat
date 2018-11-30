@@ -1,0 +1,12 @@
+<fieldset>
+	<legend>
+	#if ($r.available("accountManagementController"))
+		$r.contextHelpWithWrapper("Other#bb_themenvergabe_pb_responsible")
+	#end
+	$r.translate("form.accountmanagement.title")</legend>
+	#if ($r.available("accountManagementController"))
+		$r.render("accountManagementController")
+	#else
+		$r.translate("form.accountmanagement.no.account.manager.group")
+	#end
+</fieldset>

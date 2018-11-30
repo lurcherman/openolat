@@ -1,0 +1,11 @@
+<div id="o_cal_config_below_cal_container">
+	<div class="o_cal_toptoolbar clearfix">
+		$r.contextHelpWithWrapper("Calendar")
+		#if ($r.available("calsubscription"))
+			$r.render("calsubscription")
+		#end
+	</div>
+	<div class="o_cal">
+	  $r.render("calendar")
+	</div>
+</div>
